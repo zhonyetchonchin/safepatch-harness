@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import Field
 
 from safepatch.core.budget import RunBudget
+from safepatch.core.feedback import FeedbackBuilder
 from safepatch.core.models import (
     ActionParseError,
     AgentAction,
@@ -57,10 +58,12 @@ class AgentLoop:
         provider: LLMProvider,
         tool_executor: ToolExecutor | None = None,
         budget: RunBudget | None = None,
+        feedback_builder: FeedbackBuilder | None = None,
     ) -> None:
         self._provider = provider
         self._tool_executor = tool_executor
         self._budget = budget or RunBudget()
+        self._feedback_builder = feedback_builder or FeedbackBuilder()
 
     async def run(
         self,
@@ -68,6 +71,7 @@ class AgentLoop:
         task: str,
         *,
         initial_step: int = 0,
+        prior_feedback: list[ToolResult] | None = None,
     ) -> LoopRunResult:
         recorder = _EventRecorder(run_id)
         state = RunState(run_id=run_id, status=RunStatus.CREATED, step=initial_step)
@@ -101,7 +105,7 @@ class AgentLoop:
                 feedback=feedback,
             )
 
-        messages = self._build_messages(task)
+        messages = self._build_messages(task, prior_feedback or [])
         recorder.add(EventType.CONTEXT_BUILT, {"message_count": len(messages)})
         request = LLMRequest(run_id=run_id, step=state.step, messages=messages)
         recorder.add(EventType.LLM_REQUESTED, {"step": state.step})
@@ -175,11 +179,20 @@ class AgentLoop:
         recorder.add(EventType.RUN_FINISHED, {"status": state.status.value})
         return LoopRunResult(state=state, events=recorder.events, feedback=feedback)
 
-    def _build_messages(self, task: str) -> list[LLMMessage]:
-        return [
+    def _build_messages(
+        self,
+        task: str,
+        prior_feedback: list[ToolResult],
+    ) -> list[LLMMessage]:
+        messages = [
             LLMMessage(
                 role="system",
                 content="Return exactly one SafePatch JSON action.",
             ),
             LLMMessage(role="user", content=task),
         ]
+        messages.extend(
+            self._feedback_builder.build_message(result)
+            for result in prior_feedback
+        )
+        return messages

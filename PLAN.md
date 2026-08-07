@@ -109,7 +109,7 @@
   - 失败测试：非 allowlist 命令不执行；超时返回 timeout；成功和失败命令捕获输出和退出码。红灯为缺少 `safepatch.tools.checks`。
   - 验证：`pytest tests/tools/test_checks.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`42 passed`。
   - 依赖：T20。
-  - commit：待提交。
+  - commit：`1398c75`。
 
 - [ ] T33 反馈构建器
   - 目标：把工具结果、检查失败、策略拒绝转为下一轮上下文。

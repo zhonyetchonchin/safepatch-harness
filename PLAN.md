@@ -16,11 +16,12 @@
   - 验证：检查 SPEC 覆盖问题、故事、模块、架构、安全、凭据、分发、机制设计；PLAN 每个 task 有验证步骤。
   - commit：`7b7f413`。
 
-- [~] T02 Superpowers 安装与流程确认
+- [x] T02 Superpowers 安装与流程确认
   - 目标：安装并启用 Superpowers，确认 brainstorming、writing-plans、test-driven-development 等技能可用。
   - 文件：`SPEC_PROCESS.md`、`AGENT_LOG.md`。
-  - 验证：记录插件 / skill 调用证据；若偏离，写明原因和补救。
+  - 验证：`superpowers:brainstorming` 已暴露、读取并用于设计；`writing-plans`、`test-driven-development`、`requesting-code-review` 在当前会话始终未暴露，已在 `SPEC_PROCESS.md` 与 `AGENT_LOG.md` 如实记录偏离；后续每个 task 手工执行红灯、绿灯、回归和审阅记录作为补救。
   - 依赖：用户安装或授权 Superpowers 插件。
+  - commit：`7d3bd0d`。
 
 - [x] T03 冷启动验证
   - 目标：用不同类型 agent 的新会话，仅凭 `SPEC.md` + `PLAN.md` 尝试 1-2 个 task。
@@ -256,11 +257,13 @@
   - 依赖：T70。
   - commit：`23749a9`。
 
-- [ ] T73 最终交付检查
+- [x] T73 最终交付检查
   - 目标：补全 commit hash、AGENT_LOG、SPEC_PROCESS、REFLECTION 占位说明。
   - 文件：`PLAN.md`、`AGENT_LOG.md`、`SPEC_PROCESS.md`、`REFLECTION.md`。
-  - 验证：交付清单逐项通过；真实反思由学生本人完成。
+  - 失败测试：初始读取 `REFLECTION.md` 失败；实现后 contract 测试断言 `REFLECTION.md` 和 `SPEC_PROCESS.md` 记录最终交付检查、最终测试数量、Docker daemon 限制和 Superpowers 技能限制。
+  - 验证：`pytest tests/distribution/test_final_delivery.py` 通过，`1 passed`；全量 `pytest -q` 通过，`88 passed, 1 skipped`；真实反思由学生本人完成。
   - 依赖：全部实现 task。
+  - commit：`7d3bd0d`。
 
 ## 并行策略
 

@@ -318,3 +318,13 @@
 - 回归：`.\.venv\Scripts\python.exe -m pytest tests\distribution -q` 通过，`4 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`87 passed, 1 skipped`。
 - commit：`23749a9` (`docs: add project readme`)。
 - 人工 / 主开发决策：README 明确说明 credential status response does not echo API key/password；Docker 实际 build 仍受本机 daemon 未启动限制。
+
+## 2026-08-08 T73 / 最终交付检查
+
+- 技能 / 流程：最终检查；重新搜索后仍未暴露 `writing-plans`、`test-driven-development`、`requesting-code-review`。T02 按“流程确认完成但有技能暴露限制”关闭，不声称调用了未暴露 skill。
+- 红灯：新增 `tests/distribution/test_final_delivery.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\distribution\test_final_delivery.py -q`，失败为 `REFLECTION.md` 不存在。
+- 实现：新增 `REFLECTION.md` 占位说明；在 `SPEC_PROCESS.md` 补最终交付检查、最终验证、已知限制与偏离。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\distribution\test_final_delivery.py -q` 通过，`1 passed`。
+- 回归：全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`88 passed, 1 skipped`。
+- commit：`7d3bd0d` (`docs: add final delivery notes`)。
+- 人工 / 主开发决策：`REFLECTION.md` 只做占位，真实课程反思需要学生本人完成；Docker daemon 和远端 GitLab pipeline 限制保留为交付 caveat。

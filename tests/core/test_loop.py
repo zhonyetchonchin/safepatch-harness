@@ -3,6 +3,7 @@ import asyncio
 from safepatch.core.loop import AgentLoop
 from safepatch.core.models import EventType, ResultCategory, RunStatus
 from safepatch.core.provider import MockLLM
+from safepatch.core.budget import RunBudget
 
 
 def run(coro):
@@ -50,3 +51,18 @@ def test_invalid_json_does_not_execute_tools_and_returns_parse_feedback():
     assert "invalid action" in result.feedback.observation
     assert EventType.PARSE_FAILED in {event.type for event in result.events}
     assert EventType.RUN_FINISHED in {event.type for event in result.events}
+
+
+def test_step_budget_exhaustion_does_not_call_provider():
+    provider = MockLLM(
+        ['{"type": "finish", "status": "completed", "message": "should not run"}']
+    )
+    loop = AgentLoop(provider=provider, budget=RunBudget(max_steps=1))
+
+    result = run(loop.run(run_id="run-1", task="finish", initial_step=1))
+
+    assert result.state.status == RunStatus.BUDGET_EXHAUSTED
+    assert result.feedback is not None
+    assert result.feedback.category == ResultCategory.TIMEOUT
+    assert result.feedback.observation == "step budget exhausted"
+    assert EventType.LLM_REQUESTED not in {event.type for event in result.events}

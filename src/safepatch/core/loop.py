@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import Field
 
+from safepatch.core.budget import RunBudget
 from safepatch.core.models import (
     ActionParseError,
     AgentAction,
@@ -55,19 +56,50 @@ class AgentLoop:
         self,
         provider: LLMProvider,
         tool_executor: ToolExecutor | None = None,
+        budget: RunBudget | None = None,
     ) -> None:
         self._provider = provider
         self._tool_executor = tool_executor
+        self._budget = budget or RunBudget()
 
-    async def run(self, run_id: str, task: str) -> LoopRunResult:
+    async def run(
+        self,
+        run_id: str,
+        task: str,
+        *,
+        initial_step: int = 0,
+    ) -> LoopRunResult:
         recorder = _EventRecorder(run_id)
-        state = RunState(run_id=run_id, status=RunStatus.CREATED)
+        state = RunState(run_id=run_id, status=RunStatus.CREATED, step=initial_step)
         recorder.add(EventType.RUN_CREATED, {"task": task})
         state = transition_run_state(state, RunStatus.RUNNING)
         recorder.add(
             EventType.STATE_CHANGED,
             {"status": state.status.value, "step": state.step},
         )
+
+        budget_decision = self._budget.check(step=state.step)
+        if budget_decision.should_stop:
+            feedback = ToolResult(
+                action_id="budget",
+                success=False,
+                category=ResultCategory.TIMEOUT,
+                observation=budget_decision.reason or "budget exhausted",
+            )
+            state = transition_run_state(state, RunStatus.BUDGET_EXHAUSTED)
+            recorder.add(
+                EventType.FEEDBACK_BUILT,
+                {"category": feedback.category.value},
+            )
+            recorder.add(
+                EventType.RUN_FINISHED,
+                {"status": state.status.value, "step": state.step},
+            )
+            return LoopRunResult(
+                state=state,
+                events=recorder.events,
+                feedback=feedback,
+            )
 
         messages = self._build_messages(task)
         recorder.add(EventType.CONTEXT_BUILT, {"message_count": len(messages)})

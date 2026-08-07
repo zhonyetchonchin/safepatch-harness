@@ -109,3 +109,13 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_loop.py` 通过，`2 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`24 passed`。
 - 人工 / 主开发决策：T22 只实现最小 loop；policy、HITL、工具执行和多轮预算留给后续 T23/T40/T43，避免提前扩大范围。
+
+## 2026-08-08 T23 / 停机预算
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯 1：新增 `tests/core/test_budget.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_budget.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.core.budget'`。
+- 实现 1：新增 `src/safepatch/core/budget.py`，实现 `RunBudget` 和 `BudgetDecision`。
+- 红灯 2：新增 loop budget 集成测试后运行 `tests/core/test_loop.py`，失败为 `AgentLoop.__init__() got an unexpected keyword argument 'budget'`。
+- 实现 2：`AgentLoop` 接受 `RunBudget` 并在 provider 调用前检查 step budget，预算耗尽时结束为 `budget_exhausted`。
+- 绿灯：`tests/core/test_budget.py` 通过，`4 passed`；`tests/core/test_loop.py` 通过，`3 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`29 passed`。

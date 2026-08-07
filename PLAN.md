@@ -77,12 +77,13 @@
   - 依赖：T20、T21。
   - commit：`7de1d97`。
 
-- [ ] T23 停机预算
+- [x] T23 停机预算
   - 目标：实现 step、时间、连续失败次数预算。
   - 文件：`src/safepatch/core/budget.py`、`tests/core/test_budget.py`。
-  - 失败测试：超过 step budget 后不再调用 provider。
-  - 验证：`pytest tests/core/test_budget.py`。
+  - 失败测试：超过 step budget 后不再调用 provider；时间预算和连续失败预算达到阈值时停止。红灯为缺少 `safepatch.core.budget`，loop 集成红灯为 `AgentLoop.__init__()` 不接受 `budget`。
+  - 验证：`pytest tests/core/test_budget.py` 通过，`4 passed`；`pytest tests/core/test_loop.py` 通过，`3 passed`；全量 `.\scripts\test.ps1` 通过，`29 passed`。
   - 依赖：T22。
+  - commit：待提交。
 
 ## 3. 工具与反馈
 

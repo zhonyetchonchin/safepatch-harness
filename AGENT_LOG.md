@@ -308,3 +308,13 @@
 - 回归：`.\.venv\Scripts\python.exe -m pytest tests\distribution -q` 通过，`3 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`86 passed, 1 skipped`。
 - commit：`831e4e5` (`ci: add gitlab unit test job`)。
 - 人工 / 主开发决策：当前没有远端 push/CI 权限上下文，未验证 GitLab pipeline 实际运行；本地以 YAML contract 测试覆盖最低交付要求。
+
+## 2026-08-08 T72 / README
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/distribution/test_readme.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\distribution\test_readme.py -q`，失败为 `README.md` 不存在。
+- 实现：新增 `README.md`，覆盖项目简介、安装、demo WebUI、credential setup、目录结构、安全边界、Docker/CI 和机制演示。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\distribution\test_readme.py -q` 通过，`1 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest tests\distribution -q` 通过，`4 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`87 passed, 1 skipped`。
+- commit：`23749a9` (`docs: add project readme`)。
+- 人工 / 主开发决策：README 明确说明 credential status response does not echo API key/password；Docker 实际 build 仍受本机 daemon 未启动限制。

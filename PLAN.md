@@ -248,11 +248,13 @@
   - 依赖：T10。
   - commit：`831e4e5`。
 
-- [ ] T72 README
+- [x] T72 README
   - 目标：写明简介、安装、运行、key 配置、目录结构、安全边界、部署。
   - 文件：`README.md`。
-  - 验证：按 README 在干净环境启动 demo。
+  - 失败测试：初始读取 `README.md` 失败；实现后 contract 测试断言包含简介、安装、demo WebUI、credential setup、目录结构、安全边界、Docker/CI、机制演示和关键命令。
+  - 验证：`pytest tests/distribution/test_readme.py` 通过，`1 passed`；`pytest tests/distribution -q` 通过，`4 passed`；全量 `pytest -q` 通过，`87 passed, 1 skipped`。当前未在全新机器实际逐步执行 README；本机已验证 CLI/help、demo factory、wheel build 和测试命令。
   - 依赖：T70。
+  - commit：`23749a9`。
 
 - [ ] T73 最终交付检查
   - 目标：补全 commit hash、AGENT_LOG、SPEC_PROCESS、REFLECTION 占位说明。

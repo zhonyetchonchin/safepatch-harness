@@ -217,3 +217,39 @@ Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill�
 - 明确 `RunState` 构造时也校验审批不变量。
 - 明确 `now` 必须 timezone-aware，naive 抛出固定 `ValueError`，非 UTC 统一转换为 UTC。
 - 在 `PLAN.md` T03 中明确用户已授权继续，冷启动 agent 可进入 TDD 红灯测试，不需要访问或重写 `docs/superpowers`。
+
+## 2026-08-08 冷启动验证第六轮
+
+执行方式：创建新的 Codex task `019fdd2a-d6b8-7fe1-9e63-896b2b98ce1f`，在独立 worktree `C:\Users\钟\.codex\worktrees\2f9f\engi` 中运行，仍要求只读 `SPEC.md` 和 `PLAN.md`，允许临时创建最小 T10 骨架。
+
+结果：通过。冷启动 agent 未遇到阻断歧义，完成临时 T20 / T21 TDD 实现，未提交改动，未读取或修改受禁止文档。
+
+TDD 证据：
+
+- 红灯：运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_models.py tests\core\test_provider.py`，结果为 `collected 0 items / 2 errors`，分别缺少 `safepatch.core.models` 和 `safepatch.core.provider`。
+- 绿灯：实现最小 T20 / T21 后，`tests/core/test_models.py` 为 `29 passed in 0.16s`，`tests/core/test_provider.py` 为 `16 passed in 0.16s`。
+- 合并验证：`45 passed in 0.36s`。
+
+实际临时改动：
+
+- `pyproject.toml`
+- `src/safepatch/__init__.py`
+- `src/safepatch/core/__init__.py`
+- `src/safepatch/core/models.py`
+- `src/safepatch/core/provider.py`
+- `tests/core/test_models.py`
+- `tests/core/test_provider.py`
+- 本地 `.venv`
+
+仍建议正式实现时补强：
+
+- 明确 Python 3.12 是精确验证版本还是最低版本。
+- 明确 `list_files.glob`、`search_text.glob` 等可选字符串显式传入空白时是否拒绝。
+- 明确显式传入的 `RunState.updated_at`、`Event.created_at`、`ToolResult` 时间是否必须 timezone-aware。
+- 在 T03 中补充最小骨架建议测试环境命令。
+
+主开发判断：`SPEC.md` / `PLAN.md` 已经足以支持正式实现 T10 / T20 / T21。
+
+## Superpowers 工具状态
+
+当前会话可用 Superpowers skill 只有 `superpowers:brainstorming`。重新工具发现后仍未暴露 `writing-plans`、`test-driven-development`、`requesting-code-review` 等技能。后续实现会按这些流程要求手动执行并记录，但不能声称完成了未暴露 skill 的实际调用。

@@ -22,13 +22,14 @@
   - 验证：记录插件 / skill 调用证据；若偏离，写明原因和补救。
   - 依赖：用户安装或授权 Superpowers 插件。
 
-- [ ] T03 冷启动验证
+- [x] T03 冷启动验证
   - 目标：用不同类型 agent 的新会话，仅凭 `SPEC.md` + `PLAN.md` 尝试 1-2 个 task。
   - 文件：`docs/COLD_START_PROMPT.md`、`SPEC_PROCESS.md`，必要时修订 `SPEC.md`、`PLAN.md`。
-  - 验证：记录暂停问题、误解、修订前后 diff。
+  - 验证：记录暂停问题、误解、修订前后 diff；第六轮冷启动临时实现 T20/T21，合并验证 `45 passed in 0.36s`。
   - 依赖：T01、T02。
   - 说明：冷启动 agent 可在独立 worktree 中做临时 T20/T21 实现尝试，包括最小 T10 骨架：`pyproject.toml`、`src/safepatch/__init__.py`、`src/safepatch/core/__init__.py`、`tests/core/`。这些改动只作为验证证据，不直接合并为正式实现。若遇到歧义必须暂停，主开发会修订 SPEC / PLAN 后重新验证。
   - 设计批准：用户已在主会话授权“接着做”，且 `SPEC.md`、`PLAN.md` 与 Superpowers design doc 已提交；冷启动验证 agent 可以进入 TDD 红灯测试，不需要另写或访问 `docs/superpowers`。
+  - commit：待提交。
 
 ## 1. 项目骨架
 

@@ -59,3 +59,17 @@
 - Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架。
 - 结果：冷启动 agent 认为主要契约足够清晰，但在 TDD 前暂停；指出 ToolResult 时间字段是否可省略、RunState 审批不变量、`now` 时区规则和设计批准门槛仍需明确。
 - 人工 / 主开发决策：接受反馈，补齐这些规则，并明确当前用户授权足以让冷启动 agent 进入红灯测试。
+
+## 2026-08-08 T03 / 冷启动验证第六轮
+
+- 工具 / 流程：新建独立 Codex task `019fdd2a-d6b8-7fe1-9e63-896b2b98ce1f`，worktree 路径 `C:\Users\钟\.codex\worktrees\2f9f\engi`。
+- Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架，并明确已获准进入红灯测试。
+- 结果：通过。冷启动 agent 临时完成 T20 / T21 TDD：红灯为缺少 `safepatch.core.models` / `provider` 两个模块；最小实现后 `45 passed in 0.36s`。
+- 实际临时改动：`pyproject.toml`、`src/safepatch/__init__.py`、`src/safepatch/core/__init__.py`、`src/safepatch/core/models.py`、`src/safepatch/core/provider.py`、`tests/core/test_models.py`、`tests/core/test_provider.py`、本地 `.venv`。这些改动未提交到主仓库。
+- 人工 / 主开发决策：T03 可标记完成；正式实现从 T10 开始，不能直接复制未审核的冷启动 worktree 结果。
+
+## 2026-08-08 Superpowers 后续能力检查
+
+- 工具 / 流程：再次搜索 `writing-plans`、`test-driven-development`、`requesting-code-review`。
+- 结果：当前会话仍只暴露 `superpowers:brainstorming`，未暴露其它 Superpowers workflow skills。
+- 人工 / 主开发决策：后续按课程流程手工执行 TDD 和评审并如实记录，不声称调用了不可用 skill。

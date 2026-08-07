@@ -101,7 +101,7 @@
   - 失败测试：上下文不匹配时文件内容不变；路径逃逸拒绝；成功 patch 写入。红灯为缺少 `safepatch.tools.patch`。
   - 验证：`pytest tests/tools/test_patch.py` 通过，`3 passed`；全量 `.\scripts\test.ps1` 通过，`38 passed`。
   - 依赖：T30。
-  - commit：待提交。
+  - commit：`c442859`。
 
 - [ ] T32 受控检查命令
   - 目标：只运行配置 allowlist 中的检查命令。

@@ -287,3 +287,14 @@
 - 回归：`.\.venv\Scripts\python.exe -m safepatch.demo` 输出 3 个 `passed: true` 场景；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`83 passed, 1 skipped`。
 - commit：`5d39d66` (`feat: add deterministic mechanism demo`)。
 - 人工 / 主开发决策：失败反馈场景使用 deterministic feedback-aware mock provider，只在看到上一轮 tool feedback 后改动为 `read_file`，避免把演示写成固定日志。
+
+## 2026-08-08 T70 / Docker demo runtime
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/distribution/test_docker_assets.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\distribution\test_docker_assets.py -q`，失败为 `ModuleNotFoundError: No module named 'safepatch.runtime'`。
+- 实现：新增 `src/safepatch/runtime.py`、`src/safepatch/__main__.py`、`Dockerfile`、`.dockerignore`；`pyproject.toml` 增加 `uvicorn>=0.35,<1`；`.gitignore` 增加 `.safepatch/` 与临时 wheel 检查目录。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\distribution\test_docker_assets.py -q` 通过，`2 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest -q` 通过，`85 passed, 1 skipped`；`.\.venv\Scripts\python.exe -m safepatch --help` 可加载 CLI；`.\.venv\Scripts\python.exe -m pip wheel . -w .\.safepatch-wheel-check` 成功构建 wheel。
+- Docker 验证：`docker --version` 返回 `Docker version 29.4.3`；`docker build -t safepatch .` 因 Docker Desktop daemon 未运行失败：无法连接 `npipe:////./pipe/dockerDesktopLinuxEngine`。未执行 `docker run`。
+- commit：`8edbccb` (`feat: add docker demo runtime`)。
+- 人工 / 主开发决策：容器默认 demo mode，绑定 `0.0.0.0:8000`，数据目录为 `/data/safepatch`；本地未启动 Docker daemon 的限制如实记录。

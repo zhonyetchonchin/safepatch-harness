@@ -232,12 +232,13 @@
 
 ## 7. 分发、CI、文档
 
-- [ ] T70 Dockerfile
+- [x] T70 Dockerfile
   - 目标：构建可运行 WebUI 的容器，默认 demo mode。
-  - 文件：`Dockerfile`、`.dockerignore`。
-  - 失败测试：容器内 `python -m safepatch --demo` 可启动。
-  - 验证：`docker build -t safepatch .`，`docker run -p 8000:8000 safepatch`。
+  - 文件：`Dockerfile`、`.dockerignore`、`src/safepatch/__main__.py`、`src/safepatch/runtime.py`、`tests/distribution/test_docker_assets.py`。
+  - 失败测试：初始导入 `safepatch.runtime` 失败；实现后 demo app factory 可服务 `/health` 与 `/`，Dockerfile contract 声明 `python -m safepatch --demo`。
+  - 验证：`pytest tests/distribution/test_docker_assets.py` 通过，`2 passed`；`python -m safepatch --help` 可加载 CLI；`pip wheel .` 成功构建 wheel；全量 `pytest -q` 通过，`85 passed, 1 skipped`。当前机器 Docker CLI 存在但 Docker daemon 未运行，`docker build -t safepatch .` 失败为无法连接 `dockerDesktopLinuxEngine`，未执行 `docker run`。
   - 依赖：T63、T64。
+  - commit：`8edbccb`。
 
 - [ ] T71 GitLab CI
   - 目标：配置 `.gitlab-ci.yml`，包含名为 `unit-test` 的 job。

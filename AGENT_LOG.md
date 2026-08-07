@@ -200,3 +200,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\store\test_sqlite.py` 通过，`2 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`60 passed, 1 skipped`。
 - 人工 / 主开发决策：先用 SQLite 标准库实现本地单用户存储，不引入 ORM。
+
+## 2026-08-08 T51 / 配置加载与安全默认值
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/test_config.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\test_config.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.config'`。
+- 实现：新增 `src/safepatch/config.py`，并在 `pyproject.toml` 添加 `PyYAML>=6.0.2,<7`；实现安全默认配置、YAML 读取、allowed checks argv 校验和未知字段拒绝。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\test_config.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`64 passed, 1 skipped`。
+- 人工 / 主开发决策：明确拒绝字符串 shell 命令，只接受 argv list。

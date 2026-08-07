@@ -54,6 +54,12 @@ def create_app(
     def index():
         return FileResponse(web_dir / "index.html")
 
+    @app.get("/runs")
+    def list_runs():
+        return {
+            "runs": [_run_response(record) for record in app.state.runs.values()]
+        }
+
     @app.post("/runs", status_code=201)
     def create_run(request: CreateRunRequest):
         run_id = str(uuid4())

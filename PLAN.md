@@ -185,7 +185,7 @@
   - 失败测试：类似 `sk-...` 的值写入事件前被替换；dict/list 递归脱敏。红灯为缺少 `safepatch.security.redaction`。
   - 验证：`pytest tests/security/test_redaction.py` 通过，`3 passed`；全量 `.\scripts\test.ps1` 通过，`71 passed, 1 skipped`。
   - 依赖：T50。
-  - commit：待提交。
+  - commit：`f2c41db`。
 
 ## 6. API / WebUI / Demo
 

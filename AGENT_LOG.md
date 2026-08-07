@@ -173,3 +173,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_paths.py` 通过，`3 passed, 1 skipped`；当前 Windows 环境无法创建 symlink，symlink escape 测试跳过。
 - 回归：`.\scripts\test.ps1` 通过，`52 passed, 1 skipped`。
 - 人工 / 主开发决策：保留 symlink 测试的 skip 分支，保证无权限 Windows 环境可运行；在支持 symlink 的 CI/Linux 上会执行该测试。
+
+## 2026-08-08 T42 / 审批状态机
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/policy/test_approval.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\policy\test_approval.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.policy.approval'`。
+- 实现：新增 `src/safepatch/policy/approval.py`，实现 `ApprovalManager`、`ApprovalRecord`、`ApprovalStatus`、`ApprovalError`；支持 request / approve / reject / expire / consume。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_approval.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`56 passed, 1 skipped`。
+- 人工 / 主开发决策：一次性授权通过 `consume()` 强制执行；拒绝审批返回 `ToolResult(APPROVAL_REJECTED)`，供反馈链路复用。

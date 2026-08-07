@@ -127,7 +127,7 @@
   - 失败测试：危险命令 deny，非 allowlist 检查 deny，allowlist 检查 allow，敏感读取 deny，依赖锁文件修改 requires_approval。红灯为缺少 `safepatch.policy`。
   - 验证：`pytest tests/policy/test_engine.py` 通过，`5 passed`；全量 `.\scripts\test.ps1` 通过，`49 passed`。
   - 依赖：T20、T30。
-  - commit：待提交。
+  - commit：`ebaccfc`。
 
 - [ ] T41 路径和符号链接围栏
   - 目标：统一 resolve path，拒绝 symlink escape。

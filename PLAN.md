@@ -240,12 +240,13 @@
   - 依赖：T63、T64。
   - commit：`8edbccb`。
 
-- [ ] T71 GitLab CI
+- [x] T71 GitLab CI
   - 目标：配置 `.gitlab-ci.yml`，包含名为 `unit-test` 的 job。
   - 文件：`.gitlab-ci.yml`。
-  - 失败测试：CI lint / 本地模拟前 job 缺失。
-  - 验证：push 后最后一次 CI pass。
+  - 失败测试：初始读取 `.gitlab-ci.yml` 失败；实现后 contract 测试断言 `unit-test` 使用 `python:3.12-slim`、stage 为 `test`、script 安装 `.[dev]` 并运行 `python -m pytest -q`。
+  - 验证：`pytest tests/distribution/test_ci.py` 通过，`1 passed`；`pytest tests/distribution -q` 通过，`3 passed`；全量 `pytest -q` 通过，`86 passed, 1 skipped`。当前未 push，无法验证远端 GitLab pipeline。
   - 依赖：T10。
+  - commit：`831e4e5`。
 
 - [ ] T72 README
   - 目标：写明简介、安装、运行、key 配置、目录结构、安全边界、部署。

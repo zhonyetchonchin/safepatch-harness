@@ -298,3 +298,13 @@
 - Docker 验证：`docker --version` 返回 `Docker version 29.4.3`；`docker build -t safepatch .` 因 Docker Desktop daemon 未运行失败：无法连接 `npipe:////./pipe/dockerDesktopLinuxEngine`。未执行 `docker run`。
 - commit：`8edbccb` (`feat: add docker demo runtime`)。
 - 人工 / 主开发决策：容器默认 demo mode，绑定 `0.0.0.0:8000`，数据目录为 `/data/safepatch`；本地未启动 Docker daemon 的限制如实记录。
+
+## 2026-08-08 T71 / GitLab CI
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/distribution/test_ci.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\distribution\test_ci.py -q`，失败为 `.gitlab-ci.yml` 不存在。
+- 实现：新增 `.gitlab-ci.yml`，包含 `unit-test` job（`python:3.12-slim`、安装 `.[dev]`、运行 `python -m pytest -q`）和 `docker-build` job。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\distribution\test_ci.py -q` 通过，`1 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest tests\distribution -q` 通过，`3 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`86 passed, 1 skipped`。
+- commit：`831e4e5` (`ci: add gitlab unit test job`)。
+- 人工 / 主开发决策：当前没有远端 push/CI 权限上下文，未验证 GitLab pipeline 实际运行；本地以 YAML contract 测试覆盖最低交付要求。

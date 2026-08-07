@@ -277,3 +277,13 @@
 - 回归：`.\.venv\Scripts\python.exe -m pytest tests\api -q` 通过，`8 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`79 passed, 1 skipped`。
 - commit：`beb5dcc` (`feat: build web workbench`)。
 - 人工 / 主开发决策：WebUI 只调用本地 API，不新增前端构建链；审批状态改变与工具执行仍保持分离。
+
+## 2026-08-08 T64 / 机制演示
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/demo/test_mechanism_demo.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\demo\test_mechanism_demo.py -q`，失败为 `ModuleNotFoundError: No module named 'safepatch.demo'`。
+- 实现：新增 `src/safepatch/demo/mock_scenarios.py`、`__init__.py`、`__main__.py`；实现 `dangerous_action_block`、`failure_feedback_recovery`、`hitl_pause` 三个确定性 mock 场景。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\demo\test_mechanism_demo.py -q` 通过，`4 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m safepatch.demo` 输出 3 个 `passed: true` 场景；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`83 passed, 1 skipped`。
+- commit：`5d39d66` (`feat: add deterministic mechanism demo`)。
+- 人工 / 主开发决策：失败反馈场景使用 deterministic feedback-aware mock provider，只在看到上一轮 tool feedback 后改动为 `read_file`，避免把演示写成固定日志。

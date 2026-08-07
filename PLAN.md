@@ -222,12 +222,13 @@
   - 依赖：T60、T61、T62。
   - commit：`beb5dcc`。
 
-- [ ] T64 机制演示
+- [x] T64 机制演示
   - 目标：mock LLM 下确定性复现危险动作拦截、失败反馈改动作、HITL 暂停。
-  - 文件：`demo/mock_scenarios.py`、`tests/demo/test_mechanism_demo.py`。
-  - 失败测试：三类演示断言都失败后实现。
-  - 验证：`python -m safepatch.demo` 或 `pytest tests/demo/test_mechanism_demo.py`。
+  - 文件：`src/safepatch/demo/mock_scenarios.py`、`src/safepatch/demo/__main__.py`、`tests/demo/test_mechanism_demo.py`。
+  - 失败测试：初始导入 `safepatch.demo` 失败；实现后三类演示分别断言危险动作未执行、失败反馈被 provider 看到并改为 `read_file`、protected patch 暂停且 pending approval。
+  - 验证：`pytest tests/demo/test_mechanism_demo.py` 通过，`4 passed`；`python -m safepatch.demo` 输出 3 个 passed 场景；全量 `pytest -q` 通过，`83 passed, 1 skipped`。
   - 依赖：T43、T33。
+  - commit：`5d39d66`。
 
 ## 7. 分发、CI、文档
 

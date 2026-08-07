@@ -206,12 +206,13 @@
   - 依赖：T43、T50。
   - commit：`60ae336`。
 
-- [ ] T62 Credential API
+- [x] T62 Credential API
   - 目标：WebUI 可设置、更新、清除 key；状态不回显。
   - 文件：`src/safepatch/api/routes_credentials.py`、`tests/api/test_credentials.py`。
-  - 失败测试：status 响应不包含明文 key。
-  - 验证：`pytest tests/api/test_credentials.py`。
+  - 失败测试：`create_app()` 初始不接受 `credential_vault`，凭据 API contract 测试失败；实现后 set/status/update/delete 响应均不包含 API key 或主密码。
+  - 验证：`pytest tests/api/test_credentials.py` 通过，`1 passed`；`pytest tests/api -q` 通过，`6 passed`；全量 `pytest -q` 通过，`77 passed, 1 skipped`。
   - 依赖：T52。
+  - commit：`63665f0`。
 
 - [ ] T63 WebUI 工作台
   - 目标：实现 run 列表、时间线、审批面板、检查结果、diff 视图。

@@ -257,3 +257,13 @@
 - 回归：`.\.venv\Scripts\python.exe -m pytest tests\api -q` 通过，`5 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`76 passed, 1 skipped`。
 - commit：`60ae336` (`feat: add approval api`)。
 - 人工 / 主开发决策：Approval API 只改变审批状态，不直接执行工具；一次性执行仍由 loop `resume_approved()` 消费授权，避免 API approve 被误用为重复执行入口。
+
+## 2026-08-08 T62 / Credential API
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/api/test_credentials.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\api\test_credentials.py -q`，失败为 `create_app() got an unexpected keyword argument 'credential_vault'`。
+- 实现：新增 `src/safepatch/api/routes_credentials.py`；`create_app()` 注入可选 `EncryptedVault`；实现 `GET /credentials/{provider}/status`、`PUT /credentials/{provider}`、`DELETE /credentials/{provider}`。未配置 vault 时返回 503；set/update/delete 只返回状态。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\api\test_credentials.py -q` 通过，`1 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest tests\api -q` 通过，`6 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`77 passed, 1 skipped`。
+- commit：`63665f0` (`feat: add credential api`)。
+- 人工 / 主开发决策：Credential API 不提供明文读取接口；测试同时断言响应中不包含原 key、新 key 或主密码。

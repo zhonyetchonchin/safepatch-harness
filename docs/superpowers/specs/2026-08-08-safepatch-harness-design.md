@@ -37,6 +37,10 @@ The main contribution is governance plus HITL, because it remains testable when 
 
 The LLM outputs one structured JSON action per step. Pydantic validation rejects malformed actions before any tool can run.
 
+The provider boundary is before JSON parsing: providers return raw text in `LLMResponse.content`, and the loop parses that text into an `Action`. Mock LLM uses the same boundary, so tests exercise the real parsing path.
+
+Actions are discriminated by `type`, not by an untyped payload bag. The first release supports `read_file`, `list_files`, `search_text`, `apply_patch`, `run_check`, `remember`, and `finish`.
+
 The policy engine returns one of three decisions:
 
 - `allow`: execute the action.
@@ -48,6 +52,8 @@ The tool layer can only operate inside the normalized workspace root. Path trave
 The feedback builder converts policy decisions, command results, patch conflicts, test failures, and timeouts into compact structured feedback for the next loop iteration.
 
 The memory system stores short project facts and failure summaries in SQLite. It does not inject full history into every prompt.
+
+Run state is a validated status transition table. Terminal states are `completed`, `failed`, `canceled`, and `budget_exhausted`; they cannot transition back to `running`.
 
 ## Security
 

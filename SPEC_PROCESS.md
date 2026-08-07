@@ -106,3 +106,28 @@ Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill�
 本轮没有使用 Visual Companion，因为当前问题是规约和流程文本，不涉及需要视觉比较的 UI / 架构选项。
 
 自检结果：已扫描 Superpowers design doc，未发现 TODO/TBD/placeholder；设计与 `SPEC.md` 的关键约束一致，包括自研 loop、mock LLM、HITL、Docker 分发和 `unit-test` CI。
+
+## 2026-08-08 冷启动验证第一轮
+
+执行方式：创建新的 Codex task `019fdd1d-c115-7f43-bf92-e3d666d6f847`，在独立 worktree 中运行，要求只阅读 `SPEC.md` 和 `PLAN.md`，选择 T20 / T21，遇到不确定立即暂停。
+
+结果：冷启动 agent 暂停，未写实现代码，未运行测试。
+
+暴露的问题：
+
+- `RunState` 未明确是枚举、状态快照还是状态机。
+- 合法 run 状态集合和状态转换表缺失。
+- Action schema 缺少字段级契约，不清楚是 discriminated union 还是宽松 payload。
+- `ToolResult`、`Event` 字段、默认值和必填性不明确。
+- Provider 边界不明确：返回原始 JSON 文本还是已验证 Action。
+- MockLLM 队列耗尽时的错误类型和稳定信息未定义。
+- PLAN 要求 T20/T21 冷启动实现，但 T20 依赖 T10，且正式实现门禁写得容易误读。
+
+修订决策：
+
+- 在 `SPEC.md` 增加“核心类型契约”章节。
+- 明确 Action 使用 `type` discriminated union，不使用松散 payload 袋。
+- 明确 Provider 返回原始 `LLMResponse.content`，解析属于 loop。
+- 明确 `ProviderExhaustedError("mock llm script exhausted")`。
+- 在 `PLAN.md` 明确冷启动实现只在独立 worktree 中作为验证证据，不直接合并。
+- 细化 T20 / T21 的失败测试。

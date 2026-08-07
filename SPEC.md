@@ -20,6 +20,131 @@ SafePatch Harness 是一个面向课程 Project A 的 coding agent harness。它
 
 ## 3. 领域与机制设计
 
+### 3.0 核心类型契约
+
+以下契约用于消除实现歧义。T20 / T21 必须优先实现这些类型，后续模块不得另起一套 action 或 state 表达。
+
+#### Run 状态
+
+`RunState` 是一次 run 的当前状态快照，不是完整状态机对象。状态转换由 `transition_run_state(current, target)` 或等价函数校验；非法转换抛出 `InvalidStateTransition`。
+
+状态集合：
+
+- `created`：run 已创建，尚未开始循环。
+- `running`：agent loop 正在推进。
+- `paused_for_approval`：等待用户批准或拒绝一个 action。
+- `completed`：任务完成，终态。
+- `failed`：不可恢复错误，终态。
+- `canceled`：用户取消，终态。
+- `budget_exhausted`：预算耗尽，终态。
+
+合法转换：
+
+| From | To |
+| --- | --- |
+| `created` | `running`, `canceled` |
+| `running` | `running`, `paused_for_approval`, `completed`, `failed`, `canceled`, `budget_exhausted` |
+| `paused_for_approval` | `running`, `failed`, `canceled` |
+| `completed` | none |
+| `failed` | none |
+| `canceled` | none |
+| `budget_exhausted` | none |
+
+#### Action schema
+
+Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` 袋。
+
+```json
+{"type": "read_file", "path": "src/app.py"}
+{"type": "list_files", "glob": "**/*.py", "limit": 100}
+{"type": "search_text", "query": "TODO", "glob": "**/*.py", "limit": 50}
+{"type": "apply_patch", "patch": "*** Begin Patch\n..."}
+{"type": "run_check", "name": "unit-test"}
+{"type": "remember", "kind": "project_convention", "content": "Use pytest.", "tags": ["tests"]}
+{"type": "finish", "status": "completed", "message": "All checks passed."}
+```
+
+字段约束：
+
+- `read_file.path`：必填，相对 workspace root 的文本路径。
+- `list_files.glob`：默认 `**/*`；`limit` 默认 100，范围 1-500。
+- `search_text.query`：必填非空；`glob` 可选；`limit` 默认 50，范围 1-200。
+- `apply_patch.patch`：必填非空 unified diff / patch 文本。
+- `run_check.name`：必填，必须匹配配置中的 allowed check 名称。
+- `remember.kind`：必填，枚举值为 `project_convention`、`user_decision`、`failure_summary`、`run_result`；`content` 必填；`tags` 默认为空列表。
+- `finish.status`：枚举值为 `completed`、`failed`、`needs_input`；`message` 必填。
+
+未知 `type`、缺失必填字段或字段类型错误必须产生 schema validation error，不执行任何工具。
+
+#### ToolResult
+
+`ToolResult` 是工具、策略、解析失败统一反馈结构：
+
+- `action_id: str`
+- `success: bool`
+- `category: ResultCategory`
+- `observation: str`
+- `metadata: dict[str, Any] = {}`
+- `started_at: datetime | None`
+- `finished_at: datetime | None`
+
+`ResultCategory` 枚举值：
+
+- `success`
+- `parse_error`
+- `policy_denied`
+- `approval_required`
+- `approval_rejected`
+- `patch_conflict`
+- `check_failed`
+- `timeout`
+- `tool_error`
+
+`observation` 是给下一轮 LLM 的短文本；`metadata` 是机器可读细节，写入前必须脱敏。
+
+#### Event
+
+`Event` 记录 run 内可回放事件：
+
+- `id: str`，UUID 字符串。
+- `run_id: str`
+- `sequence: int`，run 内从 1 开始递增。
+- `type: EventType`
+- `payload: dict[str, Any]`
+- `created_at: datetime`
+
+`EventType` 枚举值：
+
+- `run_created`
+- `context_built`
+- `llm_requested`
+- `llm_response`
+- `action_parsed`
+- `parse_failed`
+- `policy_decision`
+- `approval_requested`
+- `approval_decided`
+- `tool_started`
+- `tool_finished`
+- `feedback_built`
+- `state_changed`
+- `run_finished`
+
+`sequence < 1` 必须校验失败。
+
+#### LLM provider 边界
+
+Provider 位于 JSON 解析之前。Provider 不返回已验证 `Action`，只返回原始模型文本；解析由 agent loop 执行。
+
+接口契约：
+
+- `LLMMessage`: `role` 为 `system`、`user`、`assistant`、`tool` 之一；`content: str`。
+- `LLMRequest`: `run_id: str`、`step: int`、`messages: list[LLMMessage]`。
+- `LLMResponse`: `content: str`、`provider_name: str`、`metadata: dict[str, Any] = {}`。
+- Provider protocol: `async def complete(request: LLMRequest) -> LLMResponse`。
+
+`MockLLM` 接受一个脚本队列，队列元素可以是原始 JSON 字符串、普通字符串或预设异常。队列耗尽时抛出 `ProviderExhaustedError("mock llm script exhausted")`，该错误信息必须稳定，方便单测断言。
+
 ### 3.1 工具和动作
 
 交付产物只允许执行以下动作类型：

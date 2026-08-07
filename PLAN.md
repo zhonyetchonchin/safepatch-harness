@@ -27,6 +27,7 @@
   - 文件：`docs/COLD_START_PROMPT.md`、`SPEC_PROCESS.md`，必要时修订 `SPEC.md`、`PLAN.md`。
   - 验证：记录暂停问题、误解、修订前后 diff。
   - 依赖：T01、T02。
+  - 说明：冷启动 agent 可在独立 worktree 中做临时 T20/T21 实现尝试，包括最小测试骨架；这些改动只作为验证证据，不直接合并为正式实现。若遇到歧义必须暂停，主开发会修订 SPEC / PLAN 后重新验证。
 
 ## 1. 项目骨架
 
@@ -49,14 +50,14 @@
 - [ ] T20 定义 action / result / state schema
   - 目标：用 Pydantic 定义 Action、ToolResult、RunState、Event。
   - 文件：`src/safepatch/core/models.py`、`tests/core/test_models.py`。
-  - 失败测试：未知 action type、缺字段、非法状态转换应失败。
+  - 失败测试：未知 action type 产生 schema validation error；缺少 `read_file.path` 失败；`completed -> running` 抛出 `InvalidStateTransition`；`running -> paused_for_approval` 成功；`Event.sequence=0` 失败；合法 `run_check` action 可解析。
   - 验证：`pytest tests/core/test_models.py`。
   - 依赖：T10。
 
 - [ ] T21 Mock LLM 与 provider port
   - 目标：实现可注入 provider 抽象和脚本化 MockLLM。
   - 文件：`src/safepatch/core/provider.py`、`tests/core/test_provider.py`。
-  - 失败测试：mock action 队列为空时返回确定性错误。
+  - 失败测试：`MockLLM.complete()` 返回 `LLMResponse.content` 原始字符串而不是 Action；队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`；预设异常会原样抛出；`LLMRequest.messages` 为空时 schema validation error。
   - 验证：`pytest tests/core/test_provider.py`。
   - 依赖：T20。
 

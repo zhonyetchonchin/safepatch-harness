@@ -24,3 +24,10 @@
 - 产出：读取 `brainstorming/SKILL.md`；复核仓库文件、提交历史、`SPEC.md` 占位情况；创建 `docs/superpowers/specs/2026-08-08-safepatch-harness-design.md`。
 - 自检：Superpowers design doc 未发现 TODO/TBD/placeholder；关键约束与 `SPEC.md` 一致。
 - 人工 / 主开发决策：不进入源码实现；把当前设计作为 Superpowers design doc 记录，继续准备冷启动验证。
+
+## 2026-08-08 T03 / 冷启动验证第一轮
+
+- 工具 / 流程：新建独立 Codex task `019fdd1d-c115-7f43-bf92-e3d666d6f847`，worktree 路径 `C:\Users\钟\.codex\worktrees\7012\engi`。
+- Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，遇到歧义立即暂停。
+- 结果：冷启动 agent 暂停，未实现、未测试；指出核心类型契约、provider 边界、MockLLM 错误类型和 T10/T20 依赖存在歧义。
+- 人工 / 主开发决策：接受该反馈，修订 `SPEC.md`、`PLAN.md` 和 Superpowers design doc；随后重新触发冷启动验证。

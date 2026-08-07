@@ -135,7 +135,7 @@
   - 失败测试：普通 workspace 路径允许，`../` 和绝对路径逃逸拒绝，仓库内 symlink 指向仓库外时读取被拒绝。红灯为缺少 `safepatch.policy.paths`。
   - 验证：`pytest tests/policy/test_paths.py` 通过，`3 passed, 1 skipped`；当前 Windows 环境不能创建 symlink，相关测试跳过；全量 `.\scripts\test.ps1` 通过，`52 passed, 1 skipped`。
   - 依赖：T30。
-  - commit：待提交。
+  - commit：`af98c6d`。
 
 - [ ] T42 审批状态机
   - 目标：实现 pending / approved / rejected / expired 和一次性 action 授权。

@@ -151,7 +151,7 @@
   - 失败测试：暂停状态下不执行工具；approve 后只执行原 action 一次。红灯为 `AgentLoop.__init__()` 不接受 `policy_engine`。
   - 验证：`pytest tests/core/test_hitl_loop.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`58 passed, 1 skipped`。
   - 依赖：T22、T42。
-  - commit：待提交。
+  - commit：`e629263`。
 
 ## 5. 记忆、配置、凭据
 

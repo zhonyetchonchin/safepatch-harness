@@ -16,7 +16,7 @@
   - 验证：检查 SPEC 覆盖问题、故事、模块、架构、安全、凭据、分发、机制设计；PLAN 每个 task 有验证步骤。
   - commit：`7b7f413`。
 
-- [ ] T02 Superpowers 安装与流程确认
+- [~] T02 Superpowers 安装与流程确认
   - 目标：安装并启用 Superpowers，确认 brainstorming、writing-plans、test-driven-development 等技能可用。
   - 文件：`SPEC_PROCESS.md`、`AGENT_LOG.md`。
   - 验证：记录插件 / skill 调用证据；若偏离，写明原因和补救。
@@ -24,7 +24,7 @@
 
 - [ ] T03 冷启动验证
   - 目标：用不同类型 agent 的新会话，仅凭 `SPEC.md` + `PLAN.md` 尝试 1-2 个 task。
-  - 文件：`SPEC_PROCESS.md`，必要时修订 `SPEC.md`、`PLAN.md`。
+  - 文件：`docs/COLD_START_PROMPT.md`、`SPEC_PROCESS.md`，必要时修订 `SPEC.md`、`PLAN.md`。
   - 验证：记录暂停问题、误解、修订前后 diff。
   - 依赖：T01、T02。
 

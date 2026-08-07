@@ -82,3 +82,14 @@
 - brainstorming / writing-plans 技能调用记录。
 - 冷启动验证证据。
 - 若流程有偏离，在 `AGENT_LOG.md` 中解释偏离原因和补救。
+
+## 2026-08-08 Superpowers 安装状态更新
+
+已向用户发起 Superpowers 插件安装建议，用户已确认安装。安装后重新执行工具发现，当前会话仍未暴露 `brainstorming`、`writing-plans`、`test-driven-development` 等 Superpowers 技能入口。
+
+处理决策：
+
+- 不声称已经完成 Superpowers 技能调用。
+- T02 标记为进行中，而不是完成。
+- 准备 `docs/COLD_START_PROMPT.md`，用于后续不同 agent 类型冷启动验证。
+- 在未完成 T03 前，不进入 harness 源码实现。

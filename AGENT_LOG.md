@@ -8,3 +8,11 @@
 - commit：`7b7f413` (`docs: initialize Project A spec and plan`)。
 - 人工 / 主开发决策：选择 SafePatch Harness；主贡献维度定为治理护栏 + HITL 状态机；公网 WebUI 限制为 demo mode。
 - 下一步：安装 / 启用 Superpowers，完成正式 brainstorming / writing-plans 证据；用不同类型 agent 做冷启动验证；验证通过后才写 harness 源码。
+
+## 2026-08-08 T02
+
+- 技能 / 流程：Superpowers 安装与流程确认。
+- Prompt / context：Project A 要求必须使用 Superpowers 的 brainstorming、planning、TDD 和 review 流程。
+- 产出：发起 Superpowers 插件安装建议，用户确认安装；重新执行工具发现后，当前会话仍未暴露具体 Superpowers skill。
+- 人工 / 主开发决策：T02 保持进行中；不把“插件建议已确认”等同于“已完成 Superpowers 流程”。补充 `docs/COLD_START_PROMPT.md`，为 T03 冷启动验证做准备。
+- 下一步：在新会话或插件能力刷新后补齐 Superpowers 技能调用证据；随后执行冷启动验证。

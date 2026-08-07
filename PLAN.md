@@ -117,7 +117,7 @@
   - 失败测试：测试失败摘要必须出现在下一轮 prompt/context。红灯为缺少 `safepatch.core.feedback`。
   - 验证：`pytest tests/core/test_feedback.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`44 passed`。
   - 依赖：T22、T32。
-  - commit：待提交。
+  - commit：`c57880c`。
 
 ## 4. 治理与 HITL 主贡献
 

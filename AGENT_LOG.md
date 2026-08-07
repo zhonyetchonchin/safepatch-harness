@@ -218,3 +218,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\security\test_vault.py` 通过，`4 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`68 passed, 1 skipped`。
 - 人工 / 主开发决策：状态接口只暴露 provider、has_key、updated_at，不返回明文；vault 文件只保存 salt/nonce/ciphertext。
+
+## 2026-08-08 T53 / secret redaction
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/security/test_redaction.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\security\test_redaction.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.security.redaction'`。
+- 实现：新增 `src/safepatch/security/redaction.py`，实现 `redact_text()`、`redact_payload()`；`SQLiteStore.append_event()` 写入前递归脱敏 payload。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\security\test_redaction.py` 通过，`3 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`71 passed, 1 skipped`。
+- 人工 / 主开发决策：当前先覆盖 OpenAI 风格 `sk-...`；后续可按 provider 扩展更多模式。

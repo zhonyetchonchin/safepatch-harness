@@ -129,12 +129,13 @@
   - 依赖：T20、T30。
   - commit：`ebaccfc`。
 
-- [ ] T41 路径和符号链接围栏
+- [x] T41 路径和符号链接围栏
   - 目标：统一 resolve path，拒绝 symlink escape。
   - 文件：`src/safepatch/policy/paths.py`、`tests/policy/test_paths.py`。
-  - 失败测试：仓库内 symlink 指向仓库外时读取被拒绝。
-  - 验证：`pytest tests/policy/test_paths.py`。
+  - 失败测试：普通 workspace 路径允许，`../` 和绝对路径逃逸拒绝，仓库内 symlink 指向仓库外时读取被拒绝。红灯为缺少 `safepatch.policy.paths`。
+  - 验证：`pytest tests/policy/test_paths.py` 通过，`3 passed, 1 skipped`；当前 Windows 环境不能创建 symlink，相关测试跳过；全量 `.\scripts\test.ps1` 通过，`52 passed, 1 skipped`。
   - 依赖：T30。
+  - commit：待提交。
 
 - [ ] T42 审批状态机
   - 目标：实现 pending / approved / rejected / expired 和一次性 action 授权。

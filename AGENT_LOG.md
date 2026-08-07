@@ -164,3 +164,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_engine.py` 通过，`5 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`49 passed`。
 - 人工 / 主开发决策：当前 action schema 没有任意 shell 命令类型；危险命令先在 `run_check.name` 和后续 allowlist 边界中拦截。
+
+## 2026-08-08 T41 / 路径和符号链接围栏
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/policy/test_paths.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\policy\test_paths.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.policy.paths'`。
+- 实现：新增 `src/safepatch/policy/paths.py`，用 `Path.resolve()` + `relative_to(root)` 统一拒绝路径逃逸和 symlink escape。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_paths.py` 通过，`3 passed, 1 skipped`；当前 Windows 环境无法创建 symlink，symlink escape 测试跳过。
+- 回归：`.\scripts\test.ps1` 通过，`52 passed, 1 skipped`。
+- 人工 / 主开发决策：保留 symlink 测试的 skip 分支，保证无权限 Windows 环境可运行；在支持 symlink 的 CI/Linux 上会执行该测试。

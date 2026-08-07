@@ -55,6 +55,8 @@ The memory system stores short project facts and failure summaries in SQLite. It
 
 Run state is a Pydantic snapshot containing `run_id`, `status`, `step`, `pending_action_id`, and `updated_at`. Transitions are validated by a public transition function. Terminal states are `completed`, `failed`, `canceled`, and `budget_exhausted`; they cannot transition back to `running`.
 
+The implementation targets Pydantic v2 (`pydantic>=2.7,<3`). Timestamp defaults use current UTC time. Event IDs are UUID strings. Action parsing validates JSON and schema but does not check project policy such as whether a `run_check.name` is allowlisted; that belongs to the policy/config layer.
+
 ## Security
 
 The threat model assumes the LLM may produce dangerous actions, attempt to read secrets, or accidentally include credentials in logs.

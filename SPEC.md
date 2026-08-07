@@ -34,9 +34,22 @@ SafePatch Harness 是一个面向课程 Project A 的 coding agent harness。它
 - `status: RunStatus`
 - `step: int = 0`，必须大于等于 0。
 - `pending_action_id: str | None = None`
-- `updated_at: datetime`
+- `updated_at: datetime`，默认值为当前 UTC 时间。
 
-`transition_run_state()` 返回新的 `RunState`，不原地修改输入对象。进入 `paused_for_approval` 时可设置 `pending_action_id`；离开 `paused_for_approval` 后必须清空 `pending_action_id`。异常信息固定包含 `invalid run status transition: <from> -> <to>`。
+`transition_run_state()` 签名：
+
+```python
+def transition_run_state(
+    state: RunState,
+    target: RunStatus,
+    *,
+    pending_action_id: str | None = None,
+    now: datetime | None = None,
+) -> RunState:
+    ...
+```
+
+函数返回新的 `RunState`，不原地修改输入对象。`step` 不由该函数递增；loop 在成功执行一步后显式更新 step。进入 `paused_for_approval` 时 `pending_action_id` 必填且非空；目标不是 `paused_for_approval` 时传入 `pending_action_id` 必须抛出 `ValueError("pending_action_id is only valid for paused_for_approval")`。离开 `paused_for_approval` 后返回状态必须清空 `pending_action_id`。`updated_at` 使用 `now` 参数；未传入时使用当前 UTC 时间。非法状态转换抛出 `InvalidStateTransition`，异常信息固定包含 `invalid run status transition: <from> -> <to>`。
 
 状态集合：
 
@@ -69,7 +82,7 @@ Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` �
 ```json
 {"type": "read_file", "path": "src/app.py"}
 {"type": "list_files", "glob": "**/*.py", "limit": 100}
-{"type": "search_text", "query": "TODO", "glob": "**/*.py", "limit": 50}
+{"type": "search_text", "query": "target_symbol", "glob": "**/*.py", "limit": 50}
 {"type": "apply_patch", "patch": "*** Begin Patch\n..."}
 {"type": "run_check", "name": "unit-test"}
 {"type": "remember", "kind": "project_convention", "content": "Use pytest.", "tags": ["tests"]}
@@ -82,13 +95,19 @@ Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` �
 - `list_files.glob`：默认 `**/*`；`limit` 默认 100，范围 1-500。
 - `search_text.query`：必填非空；`glob` 可选；`limit` 默认 50，范围 1-200。
 - `apply_patch.patch`：必填非空 unified diff / patch 文本。
-- `run_check.name`：必填，必须匹配配置中的 allowed check 名称。
+- `run_check.name`：必填非空。是否匹配配置中的 allowed check 名称由 policy/config 层校验，不在 action schema 或 `parse_action()` 中校验。
 - `remember.kind`：必填，枚举值为 `project_convention`、`user_decision`、`failure_summary`、`run_result`；`content` 必填；`tags` 默认为空列表。
 - `finish.status`：枚举值为 `completed`、`failed`、`needs_input`；`message` 必填。
 
 未知 `type`、缺失必填字段或字段类型错误必须产生 schema validation error，不执行任何工具。
 
 公开解析入口：`parse_action(raw: str | dict[str, Any]) -> AgentAction`，位于 `safepatch.core.models`。`raw` 为字符串时先按 JSON 解析；JSON 解析失败或 schema 校验失败时抛出 `ActionParseError`。下游模块不得直接各自实现 action 解析。
+
+字符串校验规则：
+
+- 所有公开 model 的必填 `str` 字段必须拒绝空字符串和纯空白字符串。
+- `metadata` 的字典 key 不做额外语义校验。
+- `tags` 内的字符串必须非空；空列表允许。
 
 T20 完成后 `safepatch.core.models` 必须公开以下符号：
 
@@ -167,7 +186,7 @@ T20 完成后 `safepatch.core.models` 必须公开以下符号：
 - `state_changed`
 - `run_finished`
 
-`sequence < 1` 必须校验失败。
+`id` 默认使用 UUID4 字符串生成；显式传入时必须能被 `uuid.UUID(value)` 解析，UUID 版本不限。`created_at` 默认使用当前 UTC 时间。`sequence < 1` 必须校验失败。
 
 #### LLM provider 边界
 
@@ -182,6 +201,20 @@ Provider 位于 JSON 解析之前。Provider 不返回已验证 `Action`，只�
 
 `MockLLM` 接受一个脚本队列，队列元素可以是原始 JSON 字符串、普通字符串或预设异常。队列耗尽时抛出 `ProviderExhaustedError("mock llm script exhausted")`，该错误信息必须稳定，方便单测断言。
 
+`MockLLM` 构造契约：
+
+```python
+MockLLM(script: Sequence[str | Exception], provider_name: str = "mock")
+```
+
+行为：
+
+- FIFO 消费脚本队列。
+- 队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`，不改变内部状态。
+- 队列元素为字符串时，消费该元素并返回 `LLMResponse(content=item, provider_name=provider_name, metadata={"mock_index": index})`，`index` 为从 0 开始的消费序号。
+- 队列元素为异常时，先消费该元素，再原样抛出。
+- `provider_name` 默认固定为 `"mock"`。
+
 T21 完成后 `safepatch.core.provider` 必须公开以下符号：
 
 - `LLMMessage`
@@ -192,6 +225,8 @@ T21 完成后 `safepatch.core.provider` 必须公开以下符号：
 - `ProviderExhaustedError`
 
 `LLMMessage`、`LLMRequest`、`LLMResponse` 也必须使用 `extra="forbid"`。
+
+依赖版本：正式实现使用 Pydantic v2，`pyproject.toml` 约束为 `pydantic>=2.7,<3`。所有契约按 Pydantic v2 行为设计。
 
 ### 3.1 工具和动作
 

@@ -153,3 +153,31 @@ Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill�
 - 明确 `parse_action()` 是唯一公开 action 解析入口。
 - 明确 `safepatch.core.models` 和 `safepatch.core.provider` 的公开导入符号。
 - 明确冷启动 worktree 可以临时创建最小 T10 骨架，但不直接合并。
+
+## 2026-08-08 冷启动验证第三轮
+
+执行方式：创建新的 Codex task `019fdd22-95c2-7e51-a24b-2809e8f035b0`，在独立 worktree 中运行，仍要求只读 `SPEC.md` 和 `PLAN.md`。
+
+结果：冷启动 agent 第三次暂停，未写实现代码，未运行测试。剩余问题集中在可测试的边界细节。
+
+暴露的问题：
+
+- 未固定 Pydantic 主版本。
+- `run_check.name` 的 allowlist 校验归属不明确。
+- 时间戳默认值、状态转换是否更新时间、step 是否递增未定义。
+- `pending_action_id` 在非审批转换中传入时的行为未定义。
+- `Event.id` 是否验证 UUID 未定义。
+- 空白字符串是否视为非法未定义。
+- `MockLLM` 构造函数、默认 provider name、metadata、FIFO 和异常消费行为未定义。
+- `SPEC.md` 与 `PLAN.md` 的 T20 公开符号列表不完全一致。
+
+修订决策：
+
+- 固定 Pydantic v2：`pydantic>=2.7,<3`。
+- 明确 action schema 只校验 `run_check.name` 非空，allowlist 属于 policy/config 层。
+- 明确时间戳默认当前 UTC；`transition_run_state()` 接受可注入 `now`。
+- 明确 `transition_run_state()` 不递增 step。
+- 明确非审批目标传入 `pending_action_id` 抛出固定 `ValueError`。
+- 明确 Event id 使用可解析 UUID 字符串，默认 UUID4。
+- 明确公开 model 必填字符串拒绝空白。
+- 明确 `MockLLM(script, provider_name="mock")` 的 FIFO、metadata 和异常消费行为。

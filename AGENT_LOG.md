@@ -38,3 +38,10 @@
 - Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，遇到歧义立即暂停。
 - 结果：冷启动 agent 暂停，未实现、未测试；指出 `RunState` 字段、Pydantic extra 策略、公开 action 解析入口和临时 T10 骨架权限仍不明确。
 - 人工 / 主开发决策：接受该反馈，继续修订 `SPEC.md`、`PLAN.md` 和 Superpowers design doc，再进行第三轮冷启动验证。
+
+## 2026-08-08 T03 / 冷启动验证第三轮
+
+- 工具 / 流程：新建独立 Codex task `019fdd22-95c2-7e51-a24b-2809e8f035b0`，worktree 路径 `C:\Users\钟\.codex\worktrees\7179\engi`。
+- Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架。
+- 结果：冷启动 agent 暂停，未实现、未测试；指出 Pydantic 版本、allowlist 校验归属、时间戳 / UUID / 空白字符串规则、`MockLLM` FIFO 行为和公开符号列表仍不明确。
+- 人工 / 主开发决策：接受反馈，继续修订公共契约，再进行第四轮冷启动验证。

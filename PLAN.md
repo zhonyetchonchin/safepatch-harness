@@ -34,6 +34,7 @@
 - [ ] T10 Python 包与测试骨架
   - 目标：创建 `safepatch` 包、pytest、Makefile、基础配置。
   - 文件：`pyproject.toml`、`Makefile`、`src/safepatch/__init__.py`、`tests/`。
+  - 依赖约束：`pyproject.toml` 使用 Pydantic v2，约束 `pydantic>=2.7,<3`。
   - 失败测试：导入 `safepatch` 并断言版本存在，初始应因包不存在失败。
   - 验证：`make test`。
   - 依赖：T03。
@@ -50,8 +51,8 @@
 - [ ] T20 定义 action / result / state schema
   - 目标：用 Pydantic 定义 Action、ToolResult、RunState、Event。
   - 文件：`src/safepatch/core/models.py`、`tests/core/test_models.py`。
-  - 公开 API：从 `safepatch.core.models` 导入 `parse_action`、`AgentAction`、`RunStatus`、`RunState`、`InvalidStateTransition`、`transition_run_state`、`ToolResult`、`ResultCategory`、`Event`、`EventType`。
-  - 失败测试：未知 action type 通过 `parse_action()` 抛出 `ActionParseError`；额外字段因 `extra="forbid"` 失败；缺少 `read_file.path` 失败；`completed -> running` 抛出 `InvalidStateTransition` 且消息包含 `invalid run status transition: completed -> running`；`running -> paused_for_approval` 返回新 `RunState`；`Event.sequence=0` 失败；合法 `run_check` action 可解析。
+  - 公开 API：从 `safepatch.core.models` 导入 `parse_action`、`AgentAction`、`ReadFileAction`、`ListFilesAction`、`SearchTextAction`、`ApplyPatchAction`、`RunCheckAction`、`RememberAction`、`FinishAction`、`ActionParseError`、`RunStatus`、`RunState`、`InvalidStateTransition`、`transition_run_state`、`ToolResult`、`ResultCategory`、`Event`、`EventType`。
+  - 失败测试：未知 action type 通过 `parse_action()` 抛出 `ActionParseError`；额外字段因 `extra="forbid"` 失败；缺少 `read_file.path` 失败；空白字符串字段失败；`completed -> running` 抛出 `InvalidStateTransition` 且消息包含 `invalid run status transition: completed -> running`；`running -> paused_for_approval` 需要非空 `pending_action_id` 并返回新 `RunState`；非审批目标传入 `pending_action_id` 抛出固定 `ValueError`；`transition_run_state()` 不递增 step；`Event.sequence=0` 失败；`Event.id` 可被 `uuid.UUID()` 解析；合法 `run_check` action 可解析但不校验 allowlist。
   - 验证：`pytest tests/core/test_models.py`。
   - 依赖：T10。
 
@@ -59,7 +60,7 @@
   - 目标：实现可注入 provider 抽象和脚本化 MockLLM。
   - 文件：`src/safepatch/core/provider.py`、`tests/core/test_provider.py`。
   - 公开 API：从 `safepatch.core.provider` 导入 `LLMMessage`、`LLMRequest`、`LLMResponse`、`LLMProvider`、`MockLLM`、`ProviderExhaustedError`。
-  - 失败测试：`MockLLM.complete()` 返回 `LLMResponse.content` 原始字符串而不是 Action；队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`；预设异常会原样抛出；`LLMRequest.messages` 为空时 schema validation error；provider models 的额外字段因 `extra="forbid"` 失败。
+  - 失败测试：`MockLLM.complete()` 返回 `LLMResponse.content` 原始字符串而不是 Action；默认 `provider_name` 为 `mock`；`metadata.mock_index` 从 0 递增；队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`；预设异常先被消费再原样抛出；异常后的下一次调用读取后续脚本元素；`LLMRequest.messages` 为空时 schema validation error；provider models 的额外字段因 `extra="forbid"` 失败。
   - 验证：`pytest tests/core/test_provider.py`。
   - 依赖：T20。
 

@@ -60,13 +60,14 @@
   - 依赖：T10。
   - commit：`74da2e6`。
 
-- [ ] T21 Mock LLM 与 provider port
+- [x] T21 Mock LLM 与 provider port
   - 目标：实现可注入 provider 抽象和脚本化 MockLLM。
   - 文件：`src/safepatch/core/provider.py`、`tests/core/test_provider.py`。
   - 公开 API：从 `safepatch.core.provider` 导入 `LLMMessage`、`LLMRequest`、`LLMResponse`、`LLMProvider`、`MockLLM`、`ProviderExhaustedError`。
-  - 失败测试：`MockLLM.complete()` 返回 `LLMResponse.content` 原始字符串而不是 Action；空字符串和纯空白脚本元素也原样返回；默认 `provider_name` 为 `mock`；`metadata.mock_index` 从 0 递增；队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`；预设异常先被消费再原样抛出；异常后的下一次调用读取后续脚本元素；`LLMRequest.messages` 为空时 schema validation error；provider models 的额外字段因 `extra="forbid"` 失败。
-  - 验证：`pytest tests/core/test_provider.py`。
+  - 失败测试：`MockLLM.complete()` 返回 `LLMResponse.content` 原始字符串而不是 Action；空字符串和纯空白脚本元素也原样返回；默认 `provider_name` 为 `mock`；`metadata.mock_index` 从 0 递增；队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`；预设异常先被消费再原样抛出；异常后的下一次调用读取后续脚本元素；`LLMRequest.messages` 为空时 schema validation error；provider models 的额外字段因 `extra="forbid"` 失败。红灯为缺少 `safepatch.core.provider`。
+  - 验证：`pytest tests/core/test_provider.py` 通过，`7 passed`；全量 `.\scripts\test.ps1` 通过，`22 passed`。
   - 依赖：T20。
+  - commit：待提交。
 
 - [ ] T22 Agent 主循环最小闭环
   - 目标：实现 context -> provider -> parse -> policy -> dispatch -> feedback -> stop。

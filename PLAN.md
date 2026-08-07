@@ -121,12 +121,13 @@
 
 ## 4. 治理与 HITL 主贡献
 
-- [ ] T40 Policy engine 基础规则
+- [x] T40 Policy engine 基础规则
   - 目标：实现 allow / requires_approval / deny 三态决策。
   - 文件：`src/safepatch/policy/engine.py`、`tests/policy/test_engine.py`。
-  - 失败测试：危险命令 deny，依赖锁文件修改 requires_approval。
-  - 验证：`pytest tests/policy/test_engine.py`。
+  - 失败测试：危险命令 deny，非 allowlist 检查 deny，allowlist 检查 allow，敏感读取 deny，依赖锁文件修改 requires_approval。红灯为缺少 `safepatch.policy`。
+  - 验证：`pytest tests/policy/test_engine.py` 通过，`5 passed`；全量 `.\scripts\test.ps1` 通过，`49 passed`。
   - 依赖：T20、T30。
+  - commit：待提交。
 
 - [ ] T41 路径和符号链接围栏
   - 目标：统一 resolve path，拒绝 symlink escape。

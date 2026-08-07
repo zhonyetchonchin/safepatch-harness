@@ -155,3 +155,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_feedback.py` 通过，`2 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`44 passed`。
 - 人工 / 主开发决策：反馈内容保持紧凑文本，结构化细节来自 `ToolResult.metadata`，后续可在 UI/API 层展示原始事件。
+
+## 2026-08-08 T40 / Policy engine 基础规则
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/policy/test_engine.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\policy\test_engine.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.policy'`。
+- 实现：新增 `src/safepatch/policy/__init__.py`、`src/safepatch/policy/engine.py`，实现 `PolicyEngine`、`PolicyDecision`、`DecisionStatus`，覆盖危险检查名、非 allowlist 检查、敏感路径和 protected path approval。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_engine.py` 通过，`5 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`49 passed`。
+- 人工 / 主开发决策：当前 action schema 没有任意 shell 命令类型；危险命令先在 `run_check.name` 和后续 allowlist 边界中拦截。

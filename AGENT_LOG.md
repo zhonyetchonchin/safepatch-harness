@@ -137,3 +137,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_patch.py` 通过，`3 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`38 passed`。
 - 人工 / 主开发决策：T31 只支持现有文本文件修改；新增文件、删除文件和复杂 diff 格式留到后续扩展。
+
+## 2026-08-08 T32 / 受控检查命令
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/tools/test_checks.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\tools\test_checks.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.tools.checks'`。
+- 实现：新增 `src/safepatch/tools/checks.py`，只运行 allowlist 中的 argv 命令，使用 `shell=False`，捕获 stdout/stderr/returncode，超时返回 `ResultCategory.TIMEOUT`。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_checks.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`42 passed`。
+- 人工 / 主开发决策：命令 allowlist 属于配置层输入；本工具不接受任意 shell 字符串。

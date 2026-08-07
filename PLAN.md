@@ -103,12 +103,13 @@
   - 依赖：T30。
   - commit：`c442859`。
 
-- [ ] T32 受控检查命令
+- [x] T32 受控检查命令
   - 目标：只运行配置 allowlist 中的检查命令。
   - 文件：`src/safepatch/tools/checks.py`、`tests/tools/test_checks.py`。
-  - 失败测试：非 allowlist 命令不执行；超时返回 timeout。
-  - 验证：`pytest tests/tools/test_checks.py`。
+  - 失败测试：非 allowlist 命令不执行；超时返回 timeout；成功和失败命令捕获输出和退出码。红灯为缺少 `safepatch.tools.checks`。
+  - 验证：`pytest tests/tools/test_checks.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`42 passed`。
   - 依赖：T20。
+  - commit：待提交。
 
 - [ ] T33 反馈构建器
   - 目标：把工具结果、检查失败、策略拒绝转为下一轮上下文。

@@ -177,7 +177,7 @@
   - 失败测试：状态不包含 key；vault 文件不含明文；错误主密码不能解密；更新和删除可用。红灯为缺少 `safepatch.security`。
   - 验证：`pytest tests/security/test_vault.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`68 passed, 1 skipped`。
   - 依赖：T10。
-  - commit：待提交。
+  - commit：`b46dd90`。
 
 - [ ] T53 secret redaction
   - 目标：日志、事件 payload、错误输出统一脱敏。

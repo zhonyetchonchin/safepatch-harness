@@ -95,12 +95,13 @@
   - 依赖：T20。
   - commit：待提交。
 
-- [ ] T31 原子 patch 工具
+- [x] T31 原子 patch 工具
   - 目标：实现上下文校验 patch；失败时不写入。
   - 文件：`src/safepatch/tools/patch.py`、`tests/tools/test_patch.py`。
-  - 失败测试：上下文不匹配时文件内容不变。
-  - 验证：`pytest tests/tools/test_patch.py`。
+  - 失败测试：上下文不匹配时文件内容不变；路径逃逸拒绝；成功 patch 写入。红灯为缺少 `safepatch.tools.patch`。
+  - 验证：`pytest tests/tools/test_patch.py` 通过，`3 passed`；全量 `.\scripts\test.ps1` 通过，`38 passed`。
   - 依赖：T30。
+  - commit：待提交。
 
 - [ ] T32 受控检查命令
   - 目标：只运行配置 allowlist 中的检查命令。

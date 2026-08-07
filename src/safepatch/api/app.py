@@ -10,8 +10,10 @@ from pydantic import BaseModel, ConfigDict, Field
 from starlette.staticfiles import StaticFiles
 
 from safepatch.api.routes_approval import approval_router
+from safepatch.api.routes_credentials import credentials_router
 from safepatch.core.models import EventType
 from safepatch.policy.approval import ApprovalManager
+from safepatch.security.vault import EncryptedVault
 from safepatch.store.sqlite import SQLiteStore
 
 
@@ -32,14 +34,17 @@ def create_app(
     *,
     store: SQLiteStore,
     approval_manager: ApprovalManager | None = None,
+    credential_vault: EncryptedVault | None = None,
 ) -> FastAPI:
     app = FastAPI(title="SafePatch Harness")
     app.state.store = store
     app.state.runs: dict[str, RunRecord] = {}
     app.state.approval_manager = approval_manager or ApprovalManager()
+    app.state.credential_vault = credential_vault
     web_dir = Path(__file__).resolve().parent.parent / "web"
     app.mount("/static", StaticFiles(directory=web_dir), name="static")
     app.include_router(approval_router())
+    app.include_router(credentials_router())
 
     @app.get("/health")
     def health():

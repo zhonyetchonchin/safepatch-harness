@@ -51,13 +51,14 @@
 
 ## 2. 核心 Loop 与 Provider
 
-- [ ] T20 定义 action / result / state schema
+- [x] T20 定义 action / result / state schema
   - 目标：用 Pydantic 定义 Action、ToolResult、RunState、Event。
   - 文件：`src/safepatch/core/models.py`、`tests/core/test_models.py`。
   - 公开 API：从 `safepatch.core.models` 导入 `parse_action`、`AgentAction`、`ReadFileAction`、`ListFilesAction`、`SearchTextAction`、`ApplyPatchAction`、`RunCheckAction`、`RememberAction`、`FinishAction`、`ActionParseError`、`RunStatus`、`RunState`、`InvalidStateTransition`、`transition_run_state`、`ToolResult`、`ResultCategory`、`Event`、`EventType`。
-  - 失败测试：未知 action type 通过 `parse_action()` 抛出 `ActionParseError`；额外字段因 `extra="forbid"` 失败；缺少 `read_file.path` 失败；空白字符串字段失败；`completed -> running` 抛出 `InvalidStateTransition` 且消息包含 `invalid run status transition: completed -> running`；`running -> paused_for_approval` 需要非空 `pending_action_id` 并返回新 `RunState`；直接构造 `RunState(status="paused_for_approval")` 且无 `pending_action_id` 失败；非审批状态带 `pending_action_id` 失败；非审批目标传入 `pending_action_id` 抛出固定 `ValueError`；`transition_run_state()` 不递增 step；`transition_run_state(now=<naive datetime>)` 抛出固定 `ValueError`；`Event.sequence=0` 失败；`Event.id` 可被 `uuid.UUID()` 解析；`ToolResult.started_at` / `finished_at` 可省略且默认为 `None`；合法 `run_check` action 可解析但不校验 allowlist。
-  - 验证：`pytest tests/core/test_models.py`。
+  - 失败测试：未知 action type 通过 `parse_action()` 抛出 `ActionParseError`；额外字段因 `extra="forbid"` 失败；缺少 `read_file.path` 失败；空白字符串字段失败；`completed -> running` 抛出 `InvalidStateTransition` 且消息包含 `invalid run status transition: completed -> running`；`running -> paused_for_approval` 需要非空 `pending_action_id` 并返回新 `RunState`；直接构造 `RunState(status="paused_for_approval")` 且无 `pending_action_id` 失败；非审批状态带 `pending_action_id` 失败；非审批目标传入 `pending_action_id` 抛出固定 `ValueError`；`transition_run_state()` 不递增 step；`transition_run_state(now=<naive datetime>)` 抛出固定 `ValueError`；`Event.sequence=0` 失败；`Event.id` 可被 `uuid.UUID()` 解析；`ToolResult.started_at` / `finished_at` 可省略且默认为 `None`；合法 `run_check` action 可解析但不校验 allowlist。红灯为缺少 `safepatch.core`。
+  - 验证：`pytest tests/core/test_models.py` 通过，`14 passed`；全量 `.\scripts\test.ps1` 通过，`15 passed`。
   - 依赖：T10。
+  - commit：待提交。
 
 - [ ] T21 Mock LLM 与 provider port
   - 目标：实现可注入 provider 抽象和脚本化 MockLLM。

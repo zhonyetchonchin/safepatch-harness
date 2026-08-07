@@ -163,12 +163,13 @@
   - 依赖：T20。
   - commit：`85faf03`。
 
-- [ ] T51 配置加载与安全默认值
+- [x] T51 配置加载与安全默认值
   - 目标：读取 `safepatch.yml`，缺省时采用安全配置。
   - 文件：`src/safepatch/config.py`、`tests/test_config.py`。
-  - 失败测试：未知检查命令默认不可运行。
-  - 验证：`pytest tests/test_config.py`。
+  - 失败测试：未知检查命令默认不可运行；allowed checks 从 YAML 读取；字符串 shell 命令拒绝；未知字段拒绝。红灯为缺少 `safepatch.config`。
+  - 验证：`pytest tests/test_config.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`64 passed, 1 skipped`。
   - 依赖：T20。
+  - commit：待提交。
 
 - [ ] T52 加密凭据 vault
   - 目标：实现 key set/status/update/delete/lock，状态不回显明文。

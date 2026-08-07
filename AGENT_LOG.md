@@ -191,3 +191,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_hitl_loop.py` 通过，`2 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`58 passed, 1 skipped`。
 - 人工 / 主开发决策：resume 阶段只执行已保存的原 action，不重新询问 provider，避免审批被复用于不同动作。
+
+## 2026-08-08 T50 / SQLite event 与 memory store
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/store/test_sqlite.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\store\test_sqlite.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.store'`。
+- 实现：新增 `src/safepatch/store/__init__.py`、`src/safepatch/store/sqlite.py`，实现 event 持久化、run 内 sequence 自动递增、memory 添加与按 tag 检索。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\store\test_sqlite.py` 通过，`2 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`60 passed, 1 skipped`。
+- 人工 / 主开发决策：先用 SQLite 标准库实现本地单用户存储，不引入 ORM。

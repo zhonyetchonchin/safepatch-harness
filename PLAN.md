@@ -161,7 +161,7 @@
   - 失败测试：event sequence 递增；memory 可按 tag 检索。红灯为缺少 `safepatch.store`。
   - 验证：`pytest tests/store/test_sqlite.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`60 passed, 1 skipped`。
   - 依赖：T20。
-  - commit：待提交。
+  - commit：`85faf03`。
 
 - [ ] T51 配置加载与安全默认值
   - 目标：读取 `safepatch.yml`，缺省时采用安全配置。

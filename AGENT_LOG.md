@@ -119,3 +119,12 @@
 - 实现 2：`AgentLoop` 接受 `RunBudget` 并在 provider 调用前检查 step budget，预算耗尽时结束为 `budget_exhausted`。
 - 绿灯：`tests/core/test_budget.py` 通过，`4 passed`；`tests/core/test_loop.py` 通过，`3 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`29 passed`。
+
+## 2026-08-08 T30 / 安全文件读取、列表、搜索
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/tools/test_files.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\tools\test_files.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.tools'`。
+- 实现：新增 `src/safepatch/tools/__init__.py`、`src/safepatch/tools/files.py`，实现 workspace containment、敏感文件拒绝、默认 denied 目录过滤、文件列表和文本搜索。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_files.py` 通过，`6 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`35 passed`。
+- 人工 / 主开发决策：`ToolResult.observation` 当前会 trim 尾部换行；T30 将文本反馈视为 observation，不把它作为逐字节文件内容 API。

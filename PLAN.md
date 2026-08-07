@@ -87,12 +87,13 @@
 
 ## 3. 工具与反馈
 
-- [ ] T30 安全文件读取 / 列表 / 搜索
+- [x] T30 安全文件读取 / 列表 / 搜索
   - 目标：实现 workspace 内文件工具。
   - 文件：`src/safepatch/tools/files.py`、`tests/tools/test_files.py`。
-  - 失败测试：`../`、绝对路径逃逸、敏感路径读取被拒绝。
-  - 验证：`pytest tests/tools/test_files.py`。
+  - 失败测试：`../`、绝对路径逃逸、敏感路径读取被拒绝；列表忽略 denied 目录；搜索返回匹配行。红灯为缺少 `safepatch.tools`。
+  - 验证：`pytest tests/tools/test_files.py` 通过，`6 passed`；全量 `.\scripts\test.ps1` 通过，`35 passed`。
   - 依赖：T20。
+  - commit：待提交。
 
 - [ ] T31 原子 patch 工具
   - 目标：实现上下文校验 patch；失败时不写入。

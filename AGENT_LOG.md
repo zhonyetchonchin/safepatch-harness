@@ -16,3 +16,11 @@
 - 产出：发起 Superpowers 插件安装建议，用户确认安装；重新执行工具发现后，当前会话仍未暴露具体 Superpowers skill。
 - 人工 / 主开发决策：T02 保持进行中；不把“插件建议已确认”等同于“已完成 Superpowers 流程”。补充 `docs/COLD_START_PROMPT.md`，为 T03 冷启动验证做准备。
 - 下一步：在新会话或插件能力刷新后补齐 Superpowers 技能调用证据；随后执行冷启动验证。
+
+## 2026-08-08 T02 / Superpowers brainstorming
+
+- 技能 / 流程：`superpowers:brainstorming`。
+- Prompt / context：用户确认“接着做”；当前已安装 Superpowers 后，系统暴露 brainstorming skill。
+- 产出：读取 `brainstorming/SKILL.md`；复核仓库文件、提交历史、`SPEC.md` 占位情况；创建 `docs/superpowers/specs/2026-08-08-safepatch-harness-design.md`。
+- 自检：Superpowers design doc 未发现 TODO/TBD/placeholder；关键约束与 `SPEC.md` 一致。
+- 人工 / 主开发决策：不进入源码实现；把当前设计作为 Superpowers design doc 记录，继续准备冷启动验证。

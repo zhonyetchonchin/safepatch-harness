@@ -93,3 +93,16 @@
 - T02 标记为进行中，而不是完成。
 - 准备 `docs/COLD_START_PROMPT.md`，用于后续不同 agent 类型冷启动验证。
 - 在未完成 T03 前，不进入 harness 源码实现。
+
+## 2026-08-08 Superpowers brainstorming 补充记录
+
+Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill。已读取该 skill 的完整说明，并按其硬门槛处理：
+
+- 不进入 harness 源码实现。
+- 先复核项目文件、要求文档和提交历史。
+- 将既有设计沉淀到 `docs/superpowers/specs/2026-08-08-safepatch-harness-design.md`。
+- 后续必须完成冷启动验证，再进入 `PLAN.md` 的实现任务。
+
+本轮没有使用 Visual Companion，因为当前问题是规约和流程文本，不涉及需要视觉比较的 UI / 架构选项。
+
+自检结果：已扫描 Superpowers design doc，未发现 TODO/TBD/placeholder；设计与 `SPEC.md` 的关键约束一致，包括自研 loop、mock LLM、HITL、Docker 分发和 `unit-test` CI。

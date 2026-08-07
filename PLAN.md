@@ -40,7 +40,7 @@
   - 失败测试：导入 `safepatch` 并断言版本存在，初始因包不存在失败：`ModuleNotFoundError: No module named 'safepatch'`。
   - 验证：`.\scripts\test.ps1` 通过，`1 passed`。本机无 `make`，保留 `Makefile` 给 CI/Linux。
   - 依赖：T03。
-  - commit：待提交。
+  - commit：`050c781`。
 
 - [ ] T11 API / WebUI 骨架
   - 目标：FastAPI app 可启动并服务静态 WebUI。

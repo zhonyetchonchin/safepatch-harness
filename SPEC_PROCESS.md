@@ -253,3 +253,31 @@ TDD 证据：
 ## Superpowers 工具状态
 
 当前会话可用 Superpowers skill 只有 `superpowers:brainstorming`。重新工具发现后仍未暴露 `writing-plans`、`test-driven-development`、`requesting-code-review` 等技能。后续实现会按这些流程要求手动执行并记录，但不能声称完成了未暴露 skill 的实际调用。
+
+## 2026-08-08 最终交付检查
+
+实现范围：
+
+- T10-T11：Python 包、测试骨架、FastAPI/WebUI 静态骨架。
+- T20-T23：核心 action schema、provider port、agent loop、预算停机。
+- T30-T33：安全文件工具、原子 patch、受控检查命令、反馈构建器。
+- T40-T43：policy engine、路径围栏、审批状态机、HITL loop 集成。
+- T50-T53：SQLite store、配置加载、加密 vault、secret redaction。
+- T60-T64：Run API、Approval API、Credential API、WebUI 工作台、机制演示。
+- T70-T72：Docker demo runtime、GitLab CI、README。
+- T73：最终交付文档与反思占位。
+
+最终验证：
+
+- `.\.venv\Scripts\python.exe -m pytest -q`：`88 passed, 1 skipped`。
+- `.\.venv\Scripts\python.exe -m safepatch.demo`：3 个 deterministic mock 场景均 `passed: true`。
+- `.\.venv\Scripts\python.exe -m safepatch --help`：CLI 可加载。
+- `.\.venv\Scripts\python.exe -m pip wheel . -w .\.safepatch-wheel-check`：wheel 构建成功。
+
+已知限制与偏离：
+
+- Superpowers 当前只暴露 `superpowers:brainstorming`；`writing-plans`、`test-driven-development`、`requesting-code-review` 未暴露。实现阶段按同等流程手工执行并在 `AGENT_LOG.md` 逐项记录红灯、绿灯、回归和人工决策。
+- Docker CLI 存在，但 Docker Desktop daemon 未运行；`docker build -t safepatch .` 失败为无法连接 `dockerDesktopLinuxEngine`，因此未执行 `docker run`。
+- 当前未 push 到 GitLab 远端，`.gitlab-ci.yml` 只完成本地 contract 测试，未验证远端 pipeline。
+- Windows 环境下 symlink escape 测试因权限 / 平台限制跳过；路径围栏实现使用 `Path.resolve()` + `relative_to(root)`，支持 symlink 的 CI/Linux 环境会执行该测试。
+- `REFLECTION.md` 是占位说明，真实课程反思应由学生本人完成。

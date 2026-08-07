@@ -24,3 +24,5 @@ Thumbs.db
 workspace/
 data/
 secrets/
+.safepatch/
+.safepatch-wheel-check/

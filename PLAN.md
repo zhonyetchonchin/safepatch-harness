@@ -42,12 +42,13 @@
   - 依赖：T03。
   - commit：`050c781`。
 
-- [ ] T11 API / WebUI 骨架
+- [x] T11 API / WebUI 骨架
   - 目标：FastAPI app 可启动并服务静态 WebUI。
   - 文件：`src/safepatch/api/app.py`、`src/safepatch/web/`、`tests/api/test_health.py`。
-  - 失败测试：`GET /health` 期望 200，初始失败。
-  - 验证：`pytest tests/api/test_health.py`。
+  - 失败测试：`GET /` 静态 WebUI shell 期望 200，初始返回 404；`GET /health` 与静态 CSS 作为同一契约测试覆盖。
+  - 验证：`pytest tests/api/test_health.py` 通过，`1 passed`；与 T60 合并验证 `pytest tests/api/test_health.py tests/api/test_runs.py` 通过，`2 passed`；全量 `pytest -q` 通过，`73 passed, 1 skipped`。
   - 依赖：T10。
+  - commit：`26eaea1`。
 
 ## 2. 核心 Loop 与 Provider
 
@@ -189,12 +190,13 @@
 
 ## 6. API / WebUI / Demo
 
-- [ ] T60 Run API
+- [x] T60 Run API
   - 目标：创建、查询、取消 run，获取事件。
-  - 文件：`src/safepatch/api/routes_runs.py`、`tests/api/test_runs.py`。
-  - 失败测试：创建 run 后可查询状态。
-  - 验证：`pytest tests/api/test_runs.py`。
+  - 文件：`src/safepatch/api/app.py`、`tests/api/test_runs.py`。
+  - 失败测试：创建 run 后可查询状态；初始缺少 FastAPI 依赖导致 `ModuleNotFoundError: No module named 'fastapi'`，补依赖后又暴露 Starlette TestClient 需要 `httpx2` 的 dev 依赖缺口。
+  - 验证：`pytest tests/api/test_runs.py` 通过，`1 passed`；与 T11 合并验证 `pytest tests/api/test_health.py tests/api/test_runs.py` 通过，`2 passed`；全量 `pytest -q` 通过，`73 passed, 1 skipped`。
   - 依赖：T22、T50。
+  - commit：`26eaea1`。
 
 - [ ] T61 Approval API
   - 目标：批准 / 拒绝待审批动作。

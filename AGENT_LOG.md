@@ -227,3 +227,23 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\security\test_redaction.py` 通过，`3 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`71 passed, 1 skipped`。
 - 人工 / 主开发决策：当前先覆盖 OpenAI 风格 `sk-...`；后续可按 provider 扩展更多模式。
+
+## 2026-08-08 T11 / API 与 WebUI 骨架
+
+- 技能 / 流程：已按 `superpowers:brainstorming` 的既定设计继续；手工执行 TDD，`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/api/test_health.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\api\test_health.py -q`，失败为 `GET /` 返回 404，说明静态 WebUI shell 未服务。
+- 实现：新增 `src/safepatch/web/index.html`、`styles.css`、`app.js`；`create_app()` 挂载 `/static` 并从 `/` 返回 WebUI shell；`pyproject.toml` 声明 package data。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\api\test_health.py tests\api\test_runs.py -q` 通过，`2 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest -q` 通过，`73 passed, 1 skipped`。
+- commit：`26eaea1` (`feat: add api and web skeleton`)。
+- 人工 / 主开发决策：T11 只实现静态 shell 和健康检查，工作台级 run 列表、时间线、审批面板和 diff 视图留给 T63。
+
+## 2026-08-08 T60 / Run API
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/api/test_runs.py` 后运行 API 定向测试，初始失败为 `ModuleNotFoundError: No module named 'fastapi'`；补 FastAPI 后暴露 Starlette TestClient 依赖缺口 `The starlette.testclient module requires the httpx2 package to be installed`。
+- 实现：新增 `src/safepatch/api/app.py`、`src/safepatch/api/__init__.py`；实现 `POST /runs`、`GET /runs/{run_id}`、`POST /runs/{run_id}/cancel`、`GET /runs/{run_id}/events`；run 记录暂存在 app 内存，事件写入 SQLite store；`pyproject.toml` 增加 `fastapi` runtime dependency 和 `httpx2` dev dependency。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\api\test_runs.py -q` 通过，`1 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest -q` 通过，`73 passed, 1 skipped`。
+- commit：`26eaea1` (`feat: add api and web skeleton`)。
+- 人工 / 主开发决策：T60 先提供最小 run CRUD/API contract；审批、凭据和完整 WebUI 由 T61-T63 扩展。

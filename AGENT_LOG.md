@@ -82,3 +82,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\test_package.py` 通过，`1 passed`。
 - 验证：本机无 `make`，`make test` 不可用；改用 `.\scripts\test.ps1`，结果 `1 passed`。
 - 人工 / 主开发决策：保留 `Makefile` 用于 CI/Linux；提供 PowerShell 测试入口支持当前 Windows 环境。
+
+## 2026-08-08 T20 / 核心模型 schema
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/core/test_models.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_models.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.core'`。
+- 实现：新增 `src/safepatch/core/__init__.py`、`src/safepatch/core/models.py`，实现 Action discriminated union、`parse_action()`、RunState/transition、ToolResult、Event。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_models.py` 通过，`14 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`15 passed`。
+- 人工 / 主开发决策：`run_check.name` 只做非空 schema 校验；allowlist 留给后续 policy/config 层，符合 SPEC。

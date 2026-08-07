@@ -59,6 +59,8 @@ The implementation targets Pydantic v2 (`pydantic>=2.7,<3`). Timestamp defaults 
 
 `LLMResponse.content` is the only public string field that may be empty or whitespace because it represents raw model output; empty output must reach the parser so parse-failure feedback can be tested.
 
+`RunState` enforces approval invariants at model construction and through the transition function. `ToolResult.started_at` and `finished_at` default to `None`. Injected transition timestamps must be timezone-aware; non-UTC values are normalized to UTC.
+
 ## Security
 
 The threat model assumes the LLM may produce dangerous actions, attempt to read secrets, or accidentally include credentials in logs.

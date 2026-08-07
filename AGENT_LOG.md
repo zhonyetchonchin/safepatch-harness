@@ -52,3 +52,10 @@
 - Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架。
 - 结果：冷启动 agent 暂停，未实现、未测试；指出 `LLMResponse.content` 是否允许空字符串与“公开字符串拒绝空白”规则冲突。
 - 人工 / 主开发决策：接受反馈，明确 `LLMResponse.content` 例外并允许 MockLLM 原样返回空响应，再进行第五轮冷启动验证。
+
+## 2026-08-08 T03 / 冷启动验证第五轮
+
+- 工具 / 流程：新建独立 Codex task `019fdd28-3258-71b1-adee-7987883aab82`，worktree 路径 `C:\Users\钟\.codex\worktrees\9fdf\engi`。
+- Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架。
+- 结果：冷启动 agent 认为主要契约足够清晰，但在 TDD 前暂停；指出 ToolResult 时间字段是否可省略、RunState 审批不变量、`now` 时区规则和设计批准门槛仍需明确。
+- 人工 / 主开发决策：接受反馈，补齐这些规则，并明确当前用户授权足以让冷启动 agent 进入红灯测试。

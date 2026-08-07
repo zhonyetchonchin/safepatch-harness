@@ -36,6 +36,8 @@ SafePatch Harness 是一个面向课程 Project A 的 coding agent harness。它
 - `pending_action_id: str | None = None`
 - `updated_at: datetime`，默认值为当前 UTC 时间。
 
+`RunState` 构造时也必须校验审批不变量：`status == paused_for_approval` 时 `pending_action_id` 必须非空；其它 status 下 `pending_action_id` 必须为 `None`。
+
 `transition_run_state()` 签名：
 
 ```python
@@ -49,7 +51,7 @@ def transition_run_state(
     ...
 ```
 
-函数返回新的 `RunState`，不原地修改输入对象。`step` 不由该函数递增；loop 在成功执行一步后显式更新 step。进入 `paused_for_approval` 时 `pending_action_id` 必填且非空；目标不是 `paused_for_approval` 时传入 `pending_action_id` 必须抛出 `ValueError("pending_action_id is only valid for paused_for_approval")`。离开 `paused_for_approval` 后返回状态必须清空 `pending_action_id`。`updated_at` 使用 `now` 参数；未传入时使用当前 UTC 时间。非法状态转换抛出 `InvalidStateTransition`，异常信息固定包含 `invalid run status transition: <from> -> <to>`。
+函数返回新的 `RunState`，不原地修改输入对象。`step` 不由该函数递增；loop 在成功执行一步后显式更新 step。进入 `paused_for_approval` 时 `pending_action_id` 必填且非空；目标不是 `paused_for_approval` 时传入 `pending_action_id` 必须抛出 `ValueError("pending_action_id is only valid for paused_for_approval")`。离开 `paused_for_approval` 后返回状态必须清空 `pending_action_id`。`updated_at` 使用 `now` 参数；未传入时使用当前 UTC 时间。`now` 必须是 timezone-aware datetime；naive datetime 必须抛出 `ValueError("now must be timezone-aware")`；非 UTC aware datetime 统一转换为 UTC。非法状态转换抛出 `InvalidStateTransition`，异常信息固定包含 `invalid run status transition: <from> -> <to>`。
 
 状态集合：
 
@@ -140,8 +142,8 @@ T20 完成后 `safepatch.core.models` 必须公开以下符号：
 - `category: ResultCategory`
 - `observation: str`
 - `metadata: dict[str, Any] = {}`
-- `started_at: datetime | None`
-- `finished_at: datetime | None`
+- `started_at: datetime | None = None`
+- `finished_at: datetime | None = None`
 
 `ResultCategory` 枚举值：
 

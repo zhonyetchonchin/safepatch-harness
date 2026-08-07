@@ -28,6 +28,7 @@
   - 验证：记录暂停问题、误解、修订前后 diff。
   - 依赖：T01、T02。
   - 说明：冷启动 agent 可在独立 worktree 中做临时 T20/T21 实现尝试，包括最小 T10 骨架：`pyproject.toml`、`src/safepatch/__init__.py`、`src/safepatch/core/__init__.py`、`tests/core/`。这些改动只作为验证证据，不直接合并为正式实现。若遇到歧义必须暂停，主开发会修订 SPEC / PLAN 后重新验证。
+  - 设计批准：用户已在主会话授权“接着做”，且 `SPEC.md`、`PLAN.md` 与 Superpowers design doc 已提交；冷启动验证 agent 可以进入 TDD 红灯测试，不需要另写或访问 `docs/superpowers`。
 
 ## 1. 项目骨架
 
@@ -52,7 +53,7 @@
   - 目标：用 Pydantic 定义 Action、ToolResult、RunState、Event。
   - 文件：`src/safepatch/core/models.py`、`tests/core/test_models.py`。
   - 公开 API：从 `safepatch.core.models` 导入 `parse_action`、`AgentAction`、`ReadFileAction`、`ListFilesAction`、`SearchTextAction`、`ApplyPatchAction`、`RunCheckAction`、`RememberAction`、`FinishAction`、`ActionParseError`、`RunStatus`、`RunState`、`InvalidStateTransition`、`transition_run_state`、`ToolResult`、`ResultCategory`、`Event`、`EventType`。
-  - 失败测试：未知 action type 通过 `parse_action()` 抛出 `ActionParseError`；额外字段因 `extra="forbid"` 失败；缺少 `read_file.path` 失败；空白字符串字段失败；`completed -> running` 抛出 `InvalidStateTransition` 且消息包含 `invalid run status transition: completed -> running`；`running -> paused_for_approval` 需要非空 `pending_action_id` 并返回新 `RunState`；非审批目标传入 `pending_action_id` 抛出固定 `ValueError`；`transition_run_state()` 不递增 step；`Event.sequence=0` 失败；`Event.id` 可被 `uuid.UUID()` 解析；合法 `run_check` action 可解析但不校验 allowlist。
+  - 失败测试：未知 action type 通过 `parse_action()` 抛出 `ActionParseError`；额外字段因 `extra="forbid"` 失败；缺少 `read_file.path` 失败；空白字符串字段失败；`completed -> running` 抛出 `InvalidStateTransition` 且消息包含 `invalid run status transition: completed -> running`；`running -> paused_for_approval` 需要非空 `pending_action_id` 并返回新 `RunState`；直接构造 `RunState(status="paused_for_approval")` 且无 `pending_action_id` 失败；非审批状态带 `pending_action_id` 失败；非审批目标传入 `pending_action_id` 抛出固定 `ValueError`；`transition_run_state()` 不递增 step；`transition_run_state(now=<naive datetime>)` 抛出固定 `ValueError`；`Event.sequence=0` 失败；`Event.id` 可被 `uuid.UUID()` 解析；`ToolResult.started_at` / `finished_at` 可省略且默认为 `None`；合法 `run_check` action 可解析但不校验 allowlist。
   - 验证：`pytest tests/core/test_models.py`。
   - 依赖：T10。
 

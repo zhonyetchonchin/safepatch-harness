@@ -197,3 +197,23 @@ Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill�
 - 明确 `LLMResponse.content` 是唯一允许为空或纯空白的公开字符串字段。
 - 明确 `MockLLM` 字符串脚本元素原样返回，包括空字符串和纯空白字符串。
 - `parse_action()` 负责把空响应转为解析失败。
+
+## 2026-08-08 冷启动验证第五轮
+
+执行方式：创建新的 Codex task `019fdd28-3258-71b1-adee-7987883aab82`，在独立 worktree 中运行，仍要求只读 `SPEC.md` 和 `PLAN.md`。
+
+结果：冷启动 agent 判断项目目标、整体架构和 T20/T21 主要契约已经足够清晰，但在进入 TDD 前暂停。
+
+暴露的问题：
+
+- `ToolResult.started_at` / `finished_at` 写为 `datetime | None` 但未明确是否可省略。
+- `RunState` 的审批不变量是否在模型构造时校验未定义。
+- `transition_run_state(now=...)` 对 naive / 非 UTC datetime 的处理未定义。
+- 冷启动 agent 将 Superpowers brainstorming 的设计批准门槛理解为仍需额外批准。
+
+修订决策：
+
+- 明确 `ToolResult.started_at` / `finished_at` 默认 `None`，可省略。
+- 明确 `RunState` 构造时也校验审批不变量。
+- 明确 `now` 必须 timezone-aware，naive 抛出固定 `ValueError`，非 UTC 统一转换为 UTC。
+- 在 `PLAN.md` T03 中明确用户已授权继续，冷启动 agent 可进入 TDD 红灯测试，不需要访问或重写 `docs/superpowers`。

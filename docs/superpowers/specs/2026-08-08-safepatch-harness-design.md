@@ -39,7 +39,7 @@ The LLM outputs one structured JSON action per step. Pydantic validation rejects
 
 The provider boundary is before JSON parsing: providers return raw text in `LLMResponse.content`, and the loop parses that text into an `Action`. Mock LLM uses the same boundary, so tests exercise the real parsing path.
 
-Actions are discriminated by `type`, not by an untyped payload bag. The first release supports `read_file`, `list_files`, `search_text`, `apply_patch`, `run_check`, `remember`, and `finish`.
+Actions are discriminated by `type`, not by an untyped payload bag. The first release supports `read_file`, `list_files`, `search_text`, `apply_patch`, `run_check`, `remember`, and `finish`. Public Pydantic models use `extra="forbid"`; unknown fields are validation failures.
 
 The policy engine returns one of three decisions:
 
@@ -53,7 +53,7 @@ The feedback builder converts policy decisions, command results, patch conflicts
 
 The memory system stores short project facts and failure summaries in SQLite. It does not inject full history into every prompt.
 
-Run state is a validated status transition table. Terminal states are `completed`, `failed`, `canceled`, and `budget_exhausted`; they cannot transition back to `running`.
+Run state is a Pydantic snapshot containing `run_id`, `status`, `step`, `pending_action_id`, and `updated_at`. Transitions are validated by a public transition function. Terminal states are `completed`, `failed`, `canceled`, and `budget_exhausted`; they cannot transition back to `running`.
 
 ## Security
 

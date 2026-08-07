@@ -26,7 +26,17 @@ SafePatch Harness 是一个面向课程 Project A 的 coding agent harness。它
 
 #### Run 状态
 
-`RunState` 是一次 run 的当前状态快照，不是完整状态机对象。状态转换由 `transition_run_state(current, target)` 或等价函数校验；非法转换抛出 `InvalidStateTransition`。
+`RunStatus` 是字符串枚举；`RunState` 是一次 run 的当前状态快照 Pydantic model，不是完整状态机对象。状态转换由 `transition_run_state(state, target, *, pending_action_id=None)` 校验；非法转换抛出 `InvalidStateTransition`。
+
+`RunState` 字段：
+
+- `run_id: str`
+- `status: RunStatus`
+- `step: int = 0`，必须大于等于 0。
+- `pending_action_id: str | None = None`
+- `updated_at: datetime`
+
+`transition_run_state()` 返回新的 `RunState`，不原地修改输入对象。进入 `paused_for_approval` 时可设置 `pending_action_id`；离开 `paused_for_approval` 后必须清空 `pending_action_id`。异常信息固定包含 `invalid run status transition: <from> -> <to>`。
 
 状态集合：
 
@@ -54,6 +64,8 @@ SafePatch Harness 是一个面向课程 Project A 的 coding agent harness。它
 
 Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` 袋。
 
+所有 action model 必须配置 `extra="forbid"`；未知字段和未知 `type` 一样属于 validation error。
+
 ```json
 {"type": "read_file", "path": "src/app.py"}
 {"type": "list_files", "glob": "**/*.py", "limit": 100}
@@ -75,6 +87,29 @@ Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` �
 - `finish.status`：枚举值为 `completed`、`failed`、`needs_input`；`message` 必填。
 
 未知 `type`、缺失必填字段或字段类型错误必须产生 schema validation error，不执行任何工具。
+
+公开解析入口：`parse_action(raw: str | dict[str, Any]) -> AgentAction`，位于 `safepatch.core.models`。`raw` 为字符串时先按 JSON 解析；JSON 解析失败或 schema 校验失败时抛出 `ActionParseError`。下游模块不得直接各自实现 action 解析。
+
+T20 完成后 `safepatch.core.models` 必须公开以下符号：
+
+- `AgentAction`
+- `ReadFileAction`
+- `ListFilesAction`
+- `SearchTextAction`
+- `ApplyPatchAction`
+- `RunCheckAction`
+- `RememberAction`
+- `FinishAction`
+- `ActionParseError`
+- `parse_action`
+- `RunStatus`
+- `RunState`
+- `InvalidStateTransition`
+- `transition_run_state`
+- `ToolResult`
+- `ResultCategory`
+- `Event`
+- `EventType`
 
 #### ToolResult
 
@@ -101,6 +136,8 @@ Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` �
 - `tool_error`
 
 `observation` 是给下一轮 LLM 的短文本；`metadata` 是机器可读细节，写入前必须脱敏。
+
+所有核心 Pydantic model 默认使用 `extra="forbid"`，除非 SPEC 明确允许扩展字段。当前没有允许任意 extra 字段的公开 model。
 
 #### Event
 
@@ -139,11 +176,22 @@ Provider 位于 JSON 解析之前。Provider 不返回已验证 `Action`，只�
 接口契约：
 
 - `LLMMessage`: `role` 为 `system`、`user`、`assistant`、`tool` 之一；`content: str`。
-- `LLMRequest`: `run_id: str`、`step: int`、`messages: list[LLMMessage]`。
+- `LLMRequest`: `run_id: str`、`step: int >= 0`、`messages: list[LLMMessage]` 且至少 1 条。
 - `LLMResponse`: `content: str`、`provider_name: str`、`metadata: dict[str, Any] = {}`。
 - Provider protocol: `async def complete(request: LLMRequest) -> LLMResponse`。
 
 `MockLLM` 接受一个脚本队列，队列元素可以是原始 JSON 字符串、普通字符串或预设异常。队列耗尽时抛出 `ProviderExhaustedError("mock llm script exhausted")`，该错误信息必须稳定，方便单测断言。
+
+T21 完成后 `safepatch.core.provider` 必须公开以下符号：
+
+- `LLMMessage`
+- `LLMRequest`
+- `LLMResponse`
+- `LLMProvider`
+- `MockLLM`
+- `ProviderExhaustedError`
+
+`LLMMessage`、`LLMRequest`、`LLMResponse` 也必须使用 `extra="forbid"`。
 
 ### 3.1 工具和动作
 

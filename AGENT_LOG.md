@@ -31,3 +31,10 @@
 - Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，遇到歧义立即暂停。
 - 结果：冷启动 agent 暂停，未实现、未测试；指出核心类型契约、provider 边界、MockLLM 错误类型和 T10/T20 依赖存在歧义。
 - 人工 / 主开发决策：接受该反馈，修订 `SPEC.md`、`PLAN.md` 和 Superpowers design doc；随后重新触发冷启动验证。
+
+## 2026-08-08 T03 / 冷启动验证第二轮
+
+- 工具 / 流程：新建独立 Codex task `019fdd20-3da9-7991-a712-826ebe5f680e`，worktree 路径 `C:\Users\钟\.codex\worktrees\8473\engi`。
+- Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，遇到歧义立即暂停。
+- 结果：冷启动 agent 暂停，未实现、未测试；指出 `RunState` 字段、Pydantic extra 策略、公开 action 解析入口和临时 T10 骨架权限仍不明确。
+- 人工 / 主开发决策：接受该反馈，继续修订 `SPEC.md`、`PLAN.md` 和 Superpowers design doc，再进行第三轮冷启动验证。

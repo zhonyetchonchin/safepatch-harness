@@ -131,3 +131,25 @@ Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill�
 - 明确 `ProviderExhaustedError("mock llm script exhausted")`。
 - 在 `PLAN.md` 明确冷启动实现只在独立 worktree 中作为验证证据，不直接合并。
 - 细化 T20 / T21 的失败测试。
+
+## 2026-08-08 冷启动验证第二轮
+
+执行方式：创建新的 Codex task `019fdd20-3da9-7991-a712-826ebe5f680e`，在独立 worktree 中运行，仍要求只读 `SPEC.md` 和 `PLAN.md`。
+
+结果：冷启动 agent 再次暂停，未写实现代码，未运行测试。总体目标和架构已清楚，但公共 API 级别仍有歧义。
+
+暴露的问题：
+
+- `RunState` 虽称为状态快照，但字段未定义。
+- 未规定 Pydantic model 是否拒绝额外字段。
+- 未规定下游统一使用什么公开入口解析 Action。
+- T20/T21 依赖 T10，但冷启动任务未明确是否可临时创建最小包骨架。
+
+修订决策：
+
+- 明确 `RunState` 是 Pydantic 快照，字段为 `run_id`、`status`、`step`、`pending_action_id`、`updated_at`。
+- 明确 `transition_run_state()` 签名和非法转换错误信息。
+- 明确所有公开 Pydantic model 使用 `extra="forbid"`。
+- 明确 `parse_action()` 是唯一公开 action 解析入口。
+- 明确 `safepatch.core.models` 和 `safepatch.core.provider` 的公开导入符号。
+- 明确冷启动 worktree 可以临时创建最小 T10 骨架，但不直接合并。

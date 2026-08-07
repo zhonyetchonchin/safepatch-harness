@@ -111,12 +111,13 @@
   - 依赖：T20。
   - commit：待提交。
 
-- [ ] T33 反馈构建器
+- [x] T33 反馈构建器
   - 目标：把工具结果、检查失败、策略拒绝转为下一轮上下文。
   - 文件：`src/safepatch/core/feedback.py`、`tests/core/test_feedback.py`。
-  - 失败测试：测试失败摘要必须出现在下一轮 prompt/context。
-  - 验证：`pytest tests/core/test_feedback.py`。
+  - 失败测试：测试失败摘要必须出现在下一轮 prompt/context。红灯为缺少 `safepatch.core.feedback`。
+  - 验证：`pytest tests/core/test_feedback.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`44 passed`。
   - 依赖：T22、T32。
+  - commit：待提交。
 
 ## 4. 治理与 HITL 主贡献
 

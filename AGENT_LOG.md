@@ -247,3 +247,13 @@
 - 回归：`.\.venv\Scripts\python.exe -m pytest -q` 通过，`73 passed, 1 skipped`。
 - commit：`26eaea1` (`feat: add api and web skeleton`)。
 - 人工 / 主开发决策：T60 先提供最小 run CRUD/API contract；审批、凭据和完整 WebUI 由 T61-T63 扩展。
+
+## 2026-08-08 T61 / Approval API
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/api/test_approval_routes.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\api\test_approval_routes.py -q`，失败为 `create_app() got an unexpected keyword argument 'approval_manager'`。
+- 实现：新增 `src/safepatch/api/routes_approval.py`；`create_app()` 注入 `ApprovalManager`；实现 `GET /approvals/{action_id}`、`POST /approvals/{action_id}/approve`、`POST /approvals/{action_id}/reject`，将 unknown 映射为 404，将非 pending / expired 等状态错误映射为 409。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\api\test_approval_routes.py -q` 通过，`3 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest tests\api -q` 通过，`5 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`76 passed, 1 skipped`。
+- commit：`60ae336` (`feat: add approval api`)。
+- 人工 / 主开发决策：Approval API 只改变审批状态，不直接执行工具；一次性执行仍由 loop `resume_approved()` 消费授权，避免 API approve 被误用为重复执行入口。

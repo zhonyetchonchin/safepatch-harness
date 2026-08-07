@@ -198,12 +198,13 @@
   - 依赖：T22、T50。
   - commit：`26eaea1`。
 
-- [ ] T61 Approval API
+- [x] T61 Approval API
   - 目标：批准 / 拒绝待审批动作。
   - 文件：`src/safepatch/api/routes_approval.py`、`tests/api/test_approval_routes.py`。
-  - 失败测试：重复 approve 返回冲突，不重复执行动作。
-  - 验证：`pytest tests/api/test_approval_routes.py`。
+  - 失败测试：`create_app()` 初始不接受 `approval_manager`，审批 API contract 测试失败；实现后重复 approve 返回 409 conflict，未知 approval 返回 404，reject 返回 `approval_rejected` feedback。
+  - 验证：`pytest tests/api/test_approval_routes.py` 通过，`3 passed`；`pytest tests/api -q` 通过，`5 passed`；全量 `pytest -q` 通过，`76 passed, 1 skipped`。
   - 依赖：T43、T50。
+  - commit：`60ae336`。
 
 - [ ] T62 Credential API
   - 目标：WebUI 可设置、更新、清除 key；状态不回显。

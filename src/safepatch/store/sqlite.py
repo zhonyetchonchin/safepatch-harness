@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import Field
 
 from safepatch.core.models import Event, EventType, NonEmptyStr, StrictModel
+from safepatch.security.redaction import redact_payload
 
 
 class MemoryRecord(StrictModel):
@@ -36,7 +37,7 @@ class SQLiteStore:
                 run_id=run_id,
                 sequence=sequence,
                 type=event_type,
-                payload=payload or {},
+                payload=redact_payload(payload or {}),
             )
             connection.execute(
                 """

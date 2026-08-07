@@ -73,3 +73,12 @@
 - 工具 / 流程：再次搜索 `writing-plans`、`test-driven-development`、`requesting-code-review`。
 - 结果：当前会话仍只暴露 `superpowers:brainstorming`，未暴露其它 Superpowers workflow skills。
 - 人工 / 主开发决策：后续按课程流程手工执行 TDD 和评审并如实记录，不声称调用了不可用 skill。
+
+## 2026-08-08 T10 / Python 包与测试骨架
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/test_package.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\test_package.py`，失败为 `ModuleNotFoundError: No module named 'safepatch'`。
+- 实现：新增 `pyproject.toml`、`Makefile`、`scripts/test.ps1`、`src/safepatch/__init__.py`。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\test_package.py` 通过，`1 passed`。
+- 验证：本机无 `make`，`make test` 不可用；改用 `.\scripts\test.ps1`，结果 `1 passed`。
+- 人工 / 主开发决策：保留 `Makefile` 用于 CI/Linux；提供 PowerShell 测试入口支持当前 Windows 环境。

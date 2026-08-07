@@ -33,13 +33,14 @@
 
 ## 1. 项目骨架
 
-- [ ] T10 Python 包与测试骨架
+- [x] T10 Python 包与测试骨架
   - 目标：创建 `safepatch` 包、pytest、Makefile、基础配置。
-  - 文件：`pyproject.toml`、`Makefile`、`src/safepatch/__init__.py`、`tests/`。
+  - 文件：`pyproject.toml`、`Makefile`、`scripts/test.ps1`、`src/safepatch/__init__.py`、`tests/`。
   - 依赖约束：`pyproject.toml` 使用 Pydantic v2，约束 `pydantic>=2.7,<3`。
-  - 失败测试：导入 `safepatch` 并断言版本存在，初始应因包不存在失败。
-  - 验证：`make test`。
+  - 失败测试：导入 `safepatch` 并断言版本存在，初始因包不存在失败：`ModuleNotFoundError: No module named 'safepatch'`。
+  - 验证：`.\scripts\test.ps1` 通过，`1 passed`。本机无 `make`，保留 `Makefile` 给 CI/Linux。
   - 依赖：T03。
+  - commit：待提交。
 
 - [ ] T11 API / WebUI 骨架
   - 目标：FastAPI app 可启动并服务静态 WebUI。

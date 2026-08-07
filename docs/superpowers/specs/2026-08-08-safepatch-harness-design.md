@@ -57,6 +57,8 @@ Run state is a Pydantic snapshot containing `run_id`, `status`, `step`, `pending
 
 The implementation targets Pydantic v2 (`pydantic>=2.7,<3`). Timestamp defaults use current UTC time. Event IDs are UUID strings. Action parsing validates JSON and schema but does not check project policy such as whether a `run_check.name` is allowlisted; that belongs to the policy/config layer.
 
+`LLMResponse.content` is the only public string field that may be empty or whitespace because it represents raw model output; empty output must reach the parser so parse-failure feedback can be tested.
+
 ## Security
 
 The threat model assumes the LLM may produce dangerous actions, attempt to read secrets, or accidentally include credentials in logs.

@@ -45,3 +45,10 @@
 - Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架。
 - 结果：冷启动 agent 暂停，未实现、未测试；指出 Pydantic 版本、allowlist 校验归属、时间戳 / UUID / 空白字符串规则、`MockLLM` FIFO 行为和公开符号列表仍不明确。
 - 人工 / 主开发决策：接受反馈，继续修订公共契约，再进行第四轮冷启动验证。
+
+## 2026-08-08 T03 / 冷启动验证第四轮
+
+- 工具 / 流程：新建独立 Codex task `019fdd25-ae24-7ee3-9e8c-3321855c7147`，worktree 路径 `C:\Users\钟\.codex\worktrees\34e4\engi`。
+- Prompt / context：要求只读 `SPEC.md` 与 `PLAN.md`，尝试 T20 / T21，允许临时创建最小 T10 骨架。
+- 结果：冷启动 agent 暂停，未实现、未测试；指出 `LLMResponse.content` 是否允许空字符串与“公开字符串拒绝空白”规则冲突。
+- 人工 / 主开发决策：接受反馈，明确 `LLMResponse.content` 例外并允许 MockLLM 原样返回空响应，再进行第五轮冷启动验证。

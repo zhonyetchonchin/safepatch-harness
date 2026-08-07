@@ -106,6 +106,7 @@ Action 使用 `type` 字段做 discriminated union，不使用宽松 `payload` �
 字符串校验规则：
 
 - 所有公开 model 的必填 `str` 字段必须拒绝空字符串和纯空白字符串。
+- 例外：`LLMResponse.content` 是原始模型输出，允许空字符串和纯空白字符串；这些内容会在 `parse_action()` 阶段变成解析失败反馈。
 - `metadata` 的字典 key 不做额外语义校验。
 - `tags` 内的字符串必须非空；空列表允许。
 
@@ -211,7 +212,7 @@ MockLLM(script: Sequence[str | Exception], provider_name: str = "mock")
 
 - FIFO 消费脚本队列。
 - 队列为空时抛出 `ProviderExhaustedError("mock llm script exhausted")`，不改变内部状态。
-- 队列元素为字符串时，消费该元素并返回 `LLMResponse(content=item, provider_name=provider_name, metadata={"mock_index": index})`，`index` 为从 0 开始的消费序号。
+- 队列元素为字符串时，消费该元素并原样返回 `LLMResponse(content=item, provider_name=provider_name, metadata={"mock_index": index})`，`index` 为从 0 开始的消费序号。空字符串和纯空白字符串也必须原样返回，用于测试后续 parser 的失败路径。
 - 队列元素为异常时，先消费该元素，再原样抛出。
 - `provider_name` 默认固定为 `"mock"`。
 
@@ -224,7 +225,7 @@ T21 完成后 `safepatch.core.provider` 必须公开以下符号：
 - `MockLLM`
 - `ProviderExhaustedError`
 
-`LLMMessage`、`LLMRequest`、`LLMResponse` 也必须使用 `extra="forbid"`。
+`LLMMessage`、`LLMRequest`、`LLMResponse` 也必须使用 `extra="forbid"`。其中 `LLMResponse.content` 是唯一允许为空或纯空白的公开字符串字段。
 
 依赖版本：正式实现使用 Pydantic v2，`pyproject.toml` 约束为 `pydantic>=2.7,<3`。所有契约按 Pydantic v2 行为设计。
 

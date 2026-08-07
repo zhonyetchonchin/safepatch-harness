@@ -181,3 +181,19 @@ Superpowers 安装后，当前会话暴露了 `superpowers:brainstorming` skill�
 - 明确 Event id 使用可解析 UUID 字符串，默认 UUID4。
 - 明确公开 model 必填字符串拒绝空白。
 - 明确 `MockLLM(script, provider_name="mock")` 的 FIFO、metadata 和异常消费行为。
+
+## 2026-08-08 冷启动验证第四轮
+
+执行方式：创建新的 Codex task `019fdd25-ae24-7ee3-9e8c-3321855c7147`，在独立 worktree 中运行，仍要求只读 `SPEC.md` 和 `PLAN.md`。
+
+结果：冷启动 agent 第四次暂停，未写实现代码，未运行测试。剩余问题仅集中在 `LLMResponse.content` 是否允许空字符串。
+
+暴露的问题：
+
+- `SPEC.md` 一方面要求公开 model 必填字符串拒绝空白，另一方面 `MockLLM` 需要返回原始模型文本。若脚本元素为空字符串，应该原样返回以测试 parser 失败，还是在 provider 层失败，未明确。
+
+修订决策：
+
+- 明确 `LLMResponse.content` 是唯一允许为空或纯空白的公开字符串字段。
+- 明确 `MockLLM` 字符串脚本元素原样返回，包括空字符串和纯空白字符串。
+- `parse_action()` 负责把空响应转为解析失败。

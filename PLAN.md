@@ -69,12 +69,13 @@
   - 依赖：T20。
   - commit：`ef6b691`。
 
-- [ ] T22 Agent 主循环最小闭环
+- [x] T22 Agent 主循环最小闭环
   - 目标：实现 context -> provider -> parse -> policy -> dispatch -> feedback -> stop。
   - 文件：`src/safepatch/core/loop.py`、`tests/core/test_loop.py`。
-  - 失败测试：mock LLM 输出 `finish` 时 run 结束；非法 JSON 不执行工具。
-  - 验证：`pytest tests/core/test_loop.py`。
+  - 失败测试：mock LLM 输出 `finish` 时 run 结束；非法 JSON 不执行工具。红灯为缺少 `safepatch.core.loop`。
+  - 验证：`pytest tests/core/test_loop.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`24 passed`。
   - 依赖：T20、T21。
+  - commit：待提交。
 
 - [ ] T23 停机预算
   - 目标：实现 step、时间、连续失败次数预算。

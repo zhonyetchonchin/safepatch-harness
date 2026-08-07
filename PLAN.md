@@ -171,12 +171,13 @@
   - 依赖：T20。
   - commit：`5762de2`。
 
-- [ ] T52 加密凭据 vault
+- [x] T52 加密凭据 vault
   - 目标：实现 key set/status/update/delete/lock，状态不回显明文。
   - 文件：`src/safepatch/security/vault.py`、`tests/security/test_vault.py`。
-  - 失败测试：API 响应和日志不包含 key；错误主密码不能解密。
-  - 验证：`pytest tests/security/test_vault.py`。
+  - 失败测试：状态不包含 key；vault 文件不含明文；错误主密码不能解密；更新和删除可用。红灯为缺少 `safepatch.security`。
+  - 验证：`pytest tests/security/test_vault.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`68 passed, 1 skipped`。
   - 依赖：T10。
+  - commit：待提交。
 
 - [ ] T53 secret redaction
   - 目标：日志、事件 payload、错误输出统一脱敏。

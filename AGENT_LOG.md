@@ -209,3 +209,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\test_config.py` 通过，`4 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`64 passed, 1 skipped`。
 - 人工 / 主开发决策：明确拒绝字符串 shell 命令，只接受 argv list。
+
+## 2026-08-08 T52 / 加密凭据 vault
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/security/test_vault.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\security\test_vault.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.security'`。
+- 实现：新增 `src/safepatch/security/__init__.py`、`src/safepatch/security/vault.py`，并在 `pyproject.toml` 添加 `cryptography>=46,<47`；使用 Argon2id 派生 AES-256-GCM key，支持 set/status/get/update/delete。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\security\test_vault.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`68 passed, 1 skipped`。
+- 人工 / 主开发决策：状态接口只暴露 provider、has_key、updated_at，不返回明文；vault 文件只保存 salt/nonce/ciphertext。

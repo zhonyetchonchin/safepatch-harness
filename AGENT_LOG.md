@@ -128,3 +128,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_files.py` 通过，`6 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`35 passed`。
 - 人工 / 主开发决策：`ToolResult.observation` 当前会 trim 尾部换行；T30 将文本反馈视为 observation，不把它作为逐字节文件内容 API。
+
+## 2026-08-08 T31 / 原子 patch 工具
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/tools/test_patch.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\tools\test_patch.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.tools.patch'`。
+- 实现：新增 `src/safepatch/tools/patch.py`，实现统一 diff 解析、路径 containment、hunk 上下文校验和全部校验后写入。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_patch.py` 通过，`3 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`38 passed`。
+- 人工 / 主开发决策：T31 只支持现有文本文件修改；新增文件、删除文件和复杂 diff 格式留到后续扩展。

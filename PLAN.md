@@ -137,12 +137,13 @@
   - 依赖：T30。
   - commit：`af98c6d`。
 
-- [ ] T42 审批状态机
+- [x] T42 审批状态机
   - 目标：实现 pending / approved / rejected / expired 和一次性 action 授权。
   - 文件：`src/safepatch/policy/approval.py`、`tests/policy/test_approval.py`。
-  - 失败测试：同一 approval 不能执行两次；reject 反馈进入下一轮。
-  - 验证：`pytest tests/policy/test_approval.py`。
+  - 失败测试：同一 approval 不能执行两次；reject 反馈进入下一轮；expired 不能 approve/consume。红灯为缺少 `safepatch.policy.approval`。
+  - 验证：`pytest tests/policy/test_approval.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`56 passed, 1 skipped`。
   - 依赖：T40。
+  - commit：待提交。
 
 - [ ] T43 loop 与 HITL 集成
   - 目标：requires_approval 时 run 暂停，approve 后继续执行原 action。

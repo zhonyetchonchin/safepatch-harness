@@ -100,3 +100,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_provider.py` 通过，`7 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`22 passed`。
 - 人工 / 主开发决策：`MockLLM` 保留原始字符串输出，包括空白响应；解析失败留给 loop / parser 路径处理。
+
+## 2026-08-08 T22 / Agent 主循环最小闭环
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/core/test_loop.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_loop.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.core.loop'`。
+- 实现：新增 `src/safepatch/core/loop.py`，实现单步 `AgentLoop.run()`、上下文构造、provider 调用、action 解析、finish 终止、parse error feedback 和事件记录。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_loop.py` 通过，`2 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`24 passed`。
+- 人工 / 主开发决策：T22 只实现最小 loop；policy、HITL、工具执行和多轮预算留给后续 T23/T40/T43，避免提前扩大范围。

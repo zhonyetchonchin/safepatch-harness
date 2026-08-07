@@ -182,3 +182,12 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_approval.py` 通过，`4 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`56 passed, 1 skipped`。
 - 人工 / 主开发决策：一次性授权通过 `consume()` 强制执行；拒绝审批返回 `ToolResult(APPROVAL_REJECTED)`，供反馈链路复用。
+
+## 2026-08-08 T43 / loop 与 HITL 集成
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/core/test_hitl_loop.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_hitl_loop.py`，失败为 `AgentLoop.__init__() got an unexpected keyword argument 'policy_engine'`。
+- 实现：`AgentLoop` 接受 `PolicyEngine` 和 `ApprovalManager`；`requires_approval` 时创建 pending approval、转换为 `paused_for_approval`、不执行工具；新增 `resume_approved()` 消费一次性授权并执行原 action。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_hitl_loop.py` 通过，`2 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`58 passed, 1 skipped`。
+- 人工 / 主开发决策：resume 阶段只执行已保存的原 action，不重新询问 provider，避免审批被复用于不同动作。

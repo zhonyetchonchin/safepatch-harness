@@ -267,3 +267,13 @@
 - 回归：`.\.venv\Scripts\python.exe -m pytest tests\api -q` 通过，`6 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`77 passed, 1 skipped`。
 - commit：`63665f0` (`feat: add credential api`)。
 - 人工 / 主开发决策：Credential API 不提供明文读取接口；测试同时断言响应中不包含原 key、新 key 或主密码。
+
+## 2026-08-08 T63 / WebUI 工作台
+
+- 技能 / 流程：使用 `sites:sites-building` 读取 WebUI/仪表盘构建约束；因项目计划要求本地 FastAPI 静态前端，未进入 Sites 部署流程。手工执行 TDD，`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/api/test_webui_contract.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\api\test_webui_contract.py -q`，失败为页面缺少 `run-form` 等工作台区域，且 `GET /runs` 返回 405。
+- 实现：扩展 `GET /runs`；重写 `src/safepatch/web/index.html`、`app.js`、`styles.css`，实现 run 队列、事件时间线、审批 approve/reject 表单、OpenAI credential 状态/设置/清除、检查结果和 diff 视图区域。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\api\test_webui_contract.py -q` 通过，`2 passed`。
+- 回归：`.\.venv\Scripts\python.exe -m pytest tests\api -q` 通过，`8 passed`；全量 `.\.venv\Scripts\python.exe -m pytest -q` 通过，`79 passed, 1 skipped`。
+- commit：`beb5dcc` (`feat: build web workbench`)。
+- 人工 / 主开发决策：WebUI 只调用本地 API，不新增前端构建链；审批状态改变与工具执行仍保持分离。

@@ -214,12 +214,13 @@
   - 依赖：T52。
   - commit：`63665f0`。
 
-- [ ] T63 WebUI 工作台
+- [x] T63 WebUI 工作台
   - 目标：实现 run 列表、时间线、审批面板、检查结果、diff 视图。
   - 文件：`src/safepatch/web/index.html`、`src/safepatch/web/app.js`、`src/safepatch/web/styles.css`。
-  - 失败测试：API contract 测试；手工浏览器验证页面可操作。
-  - 验证：`pytest tests/api`；本地打开 `http://127.0.0.1:8000`。
+  - 失败测试：WebUI contract 初始找不到 `run-form`、`timeline`、`approval-form`、`credential-form`、`check-results`、`diff-view` 等工作台区域；`GET /runs` 初始返回 405。
+  - 验证：`pytest tests/api/test_webui_contract.py` 通过，`2 passed`；`pytest tests/api -q` 通过，`8 passed`；全量 `pytest -q` 通过，`79 passed, 1 skipped`。当前按本地静态前端范围完成自动契约验证，未做外部部署。
   - 依赖：T60、T61、T62。
+  - commit：`beb5dcc`。
 
 - [ ] T64 机制演示
   - 目标：mock LLM 下确定性复现危险动作拦截、失败反馈改动作、HITL 暂停。

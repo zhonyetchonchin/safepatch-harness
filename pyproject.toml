@@ -13,6 +13,7 @@ dependencies = [
     "fastapi>=0.125,<1",
     "pydantic>=2.7,<3",
     "PyYAML>=6.0.2,<7",
+    "uvicorn>=0.35,<1",
 ]
 
 [project.optional-dependencies]

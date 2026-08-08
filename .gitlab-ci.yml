@@ -1,6 +1,5 @@
 stages:
   - test
-  - package
 
 unit-test:
   image: python:3.12-slim
@@ -10,15 +9,3 @@ unit-test:
   script:
     - python -m pip install -e ".[dev]"
     - python -m pytest -q
-
-docker-build:
-  image: docker:29
-  stage: package
-  services:
-    - docker:29-dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  script:
-    - docker build -t safepatch .
-  rules:
-    - if: $CI_COMMIT_BRANCH

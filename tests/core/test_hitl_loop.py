@@ -79,3 +79,24 @@ def test_approve_resume_executes_original_action_once():
     assert second.feedback is not None
     assert second.feedback.category == ResultCategory.APPROVAL_REJECTED
     assert "approval already consumed" in second.feedback.observation
+
+
+def test_pending_action_ids_are_unique_across_runs():
+    approvals = ApprovalManager()
+    first = AgentLoop(
+        provider=MockLLM([protected_patch_action()]),
+        policy_engine=PolicyEngine(protected_paths={"package-lock.json"}),
+        approval_manager=approvals,
+    )
+    second = AgentLoop(
+        provider=MockLLM([protected_patch_action()]),
+        policy_engine=PolicyEngine(protected_paths={"package-lock.json"}),
+        approval_manager=approvals,
+    )
+
+    first_result = run(first.run(run_id="run-one", task="update lock"))
+    second_result = run(second.run(run_id="run-two", task="update lock"))
+
+    assert first_result.state.pending_action_id != second_result.state.pending_action_id
+    assert first_result.state.pending_action_id.startswith("run-one:")
+    assert second_result.state.pending_action_id.startswith("run-two:")

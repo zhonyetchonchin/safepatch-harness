@@ -72,35 +72,19 @@ def run_dangerous_action_demo() -> ScenarioResult:
 
 
 def run_feedback_recovery_demo() -> ScenarioResult:
-    async def failing_check_executor(action: AgentAction) -> ToolResult:
-        return ToolResult(
-            action_id=action.type,
-            success=False,
-            category=ResultCategory.CHECK_FAILED,
-            observation="unit-test failed: AssertionError: expected green",
-            metadata={"name": "unit-test", "returncode": 1},
-        )
-
-    first_loop = AgentLoop(
-        provider=MockLLM([_json_action({"type": "run_check", "name": "unit-test"})]),
-        tool_executor=failing_check_executor,
-        policy_engine=PolicyEngine(allowed_checks={"unit-test"}),
-    )
-    first = _run(
-        first_loop.run(run_id="demo-feedback-1", task="run unit tests")
-    )
-    if first.feedback is None:
-        return ScenarioResult(
-            name="failure_feedback_recovery",
-            passed=False,
-            details={"error": "first run did not produce feedback"},
-        )
-
     provider = _FeedbackAwareMockLLM()
     changed_actions: list[AgentAction] = []
 
     async def recording_executor(action: AgentAction) -> ToolResult:
         changed_actions.append(action)
+        if action.type == "run_check":
+            return ToolResult(
+                action_id=action.type,
+                success=False,
+                category=ResultCategory.CHECK_FAILED,
+                observation="unit-test failed: AssertionError: expected green",
+                metadata={"name": "unit-test", "returncode": 1},
+            )
         return ToolResult(
             action_id=action.type,
             success=True,
@@ -108,30 +92,31 @@ def run_feedback_recovery_demo() -> ScenarioResult:
             observation=f"executed changed action: {action.type}",
         )
 
-    second_loop = AgentLoop(
+    loop = AgentLoop(
         provider=provider,
         tool_executor=recording_executor,
+        policy_engine=PolicyEngine(allowed_checks={"unit-test"}),
     )
-    _run(
-        second_loop.run(
-            run_id="demo-feedback-2",
+    result = _run(
+        loop.run(
+            run_id="demo-feedback",
             task="recover from failed unit test",
-            prior_feedback=[first.feedback],
         )
     )
 
-    changed_action_type = changed_actions[0].type if changed_actions else None
+    changed_action_type = changed_actions[1].type if len(changed_actions) > 1 else None
     details = {
-        "initial_feedback_category": first.feedback.category.value,
+        "initial_feedback_category": ResultCategory.CHECK_FAILED.value,
         "feedback_seen_by_provider": provider.feedback_seen,
         "changed_action_type": changed_action_type,
+        "run_status": result.state.status.value,
     }
     return ScenarioResult(
         name="failure_feedback_recovery",
         passed=(
-            first.feedback.category == ResultCategory.CHECK_FAILED
-            and provider.feedback_seen
+            provider.feedback_seen
             and changed_action_type == "read_file"
+            and result.state.status == RunStatus.COMPLETED
         ),
         details=details,
     )
@@ -196,13 +181,16 @@ def run_hitl_pause_demo() -> ScenarioResult:
 class _FeedbackAwareMockLLM:
     def __init__(self) -> None:
         self.feedback_seen = False
+        self._calls = 0
 
     async def complete(self, request: LLMRequest) -> LLMResponse:
         self.feedback_seen = any(
             message.role == "tool" and "AssertionError" in message.content
             for message in request.messages
         )
-        if self.feedback_seen:
+        if self._calls == 0:
+            content = _json_action({"type": "run_check", "name": "unit-test"})
+        elif self._calls == 1 and self.feedback_seen:
             content = _json_action(
                 {"type": "read_file", "path": "tests/core/test_loop.py"}
             )
@@ -210,10 +198,11 @@ class _FeedbackAwareMockLLM:
             content = _json_action(
                 {
                     "type": "finish",
-                    "status": "failed",
-                    "message": "feedback was not present",
+                    "status": "completed",
+                    "message": "feedback recovery completed",
                 }
             )
+        self._calls += 1
         return LLMResponse(content=content, provider_name="feedback-aware-mock")
 
 

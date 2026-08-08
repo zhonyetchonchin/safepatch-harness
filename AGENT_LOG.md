@@ -191,3 +191,39 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_hitl_loop.py` 通过，`2 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`58 passed, 1 skipped`。
 - 人工 / 主开发决策：resume 阶段只执行已保存的原 action，不重新询问 provider，避免审批被复用于不同动作。
+
+## 2026-08-08 T50 / SQLite event 与 memory store
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/store/test_sqlite.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\store\test_sqlite.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.store'`。
+- 实现：新增 `src/safepatch/store/__init__.py`、`src/safepatch/store/sqlite.py`，实现 event 持久化、run 内 sequence 自动递增、memory 添加与按 tag 检索。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\store\test_sqlite.py` 通过，`2 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`60 passed, 1 skipped`。
+- 人工 / 主开发决策：先用 SQLite 标准库实现本地单用户存储，不引入 ORM。
+
+## 2026-08-08 T51 / 配置加载与安全默认值
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/test_config.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\test_config.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.config'`。
+- 实现：新增 `src/safepatch/config.py`，并在 `pyproject.toml` 添加 `PyYAML>=6.0.2,<7`；实现安全默认配置、YAML 读取、allowed checks argv 校验和未知字段拒绝。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\test_config.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`64 passed, 1 skipped`。
+- 人工 / 主开发决策：明确拒绝字符串 shell 命令，只接受 argv list。
+
+## 2026-08-08 T52 / 加密凭据 vault
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/security/test_vault.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\security\test_vault.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.security'`。
+- 实现：新增 `src/safepatch/security/__init__.py`、`src/safepatch/security/vault.py`，并在 `pyproject.toml` 添加 `cryptography>=46,<47`；使用 Argon2id 派生 AES-256-GCM key，支持 set/status/get/update/delete。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\security\test_vault.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`68 passed, 1 skipped`。
+- 人工 / 主开发决策：状态接口只暴露 provider、has_key、updated_at，不返回明文；vault 文件只保存 salt/nonce/ciphertext。
+
+## 2026-08-08 T53 / secret redaction
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/security/test_redaction.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\security\test_redaction.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.security.redaction'`。
+- 实现：新增 `src/safepatch/security/redaction.py`，实现 `redact_text()`、`redact_payload()`；`SQLiteStore.append_event()` 写入前递归脱敏 payload。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\security\test_redaction.py` 通过，`3 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`71 passed, 1 skipped`。
+- 人工 / 主开发决策：当前先覆盖 OpenAI 风格 `sk-...`；后续可按 provider 扩展更多模式。

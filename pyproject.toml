@@ -9,7 +9,9 @@ description = "A local coding agent harness with deterministic governance and HI
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cryptography>=46,<47",
     "pydantic>=2.7,<3",
+    "PyYAML>=6.0.2,<7",
 ]
 
 [project.optional-dependencies]

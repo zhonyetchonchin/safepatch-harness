@@ -155,33 +155,37 @@
 
 ## 5. 记忆、配置、凭据
 
-- [ ] T50 SQLite event / memory store
+- [x] T50 SQLite event / memory store
   - 目标：持久化 runs、events、memories。
   - 文件：`src/safepatch/store/sqlite.py`、`tests/store/test_sqlite.py`。
-  - 失败测试：event sequence 递增；memory 可按 tag 检索。
-  - 验证：`pytest tests/store/test_sqlite.py`。
+  - 失败测试：event sequence 递增；memory 可按 tag 检索。红灯为缺少 `safepatch.store`。
+  - 验证：`pytest tests/store/test_sqlite.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`60 passed, 1 skipped`。
   - 依赖：T20。
+  - commit：待提交。
 
-- [ ] T51 配置加载与安全默认值
+- [x] T51 配置加载与安全默认值
   - 目标：读取 `safepatch.yml`，缺省时采用安全配置。
   - 文件：`src/safepatch/config.py`、`tests/test_config.py`。
-  - 失败测试：未知检查命令默认不可运行。
-  - 验证：`pytest tests/test_config.py`。
+  - 失败测试：未知检查命令默认不可运行；allowed checks 从 YAML 读取；字符串 shell 命令拒绝；未知字段拒绝。红灯为缺少 `safepatch.config`。
+  - 验证：`pytest tests/test_config.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`64 passed, 1 skipped`。
   - 依赖：T20。
+  - commit：待提交。
 
-- [ ] T52 加密凭据 vault
+- [x] T52 加密凭据 vault
   - 目标：实现 key set/status/update/delete/lock，状态不回显明文。
   - 文件：`src/safepatch/security/vault.py`、`tests/security/test_vault.py`。
-  - 失败测试：API 响应和日志不包含 key；错误主密码不能解密。
-  - 验证：`pytest tests/security/test_vault.py`。
+  - 失败测试：状态不包含 key；vault 文件不含明文；错误主密码不能解密；更新和删除可用。红灯为缺少 `safepatch.security`。
+  - 验证：`pytest tests/security/test_vault.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`68 passed, 1 skipped`。
   - 依赖：T10。
+  - commit：待提交。
 
-- [ ] T53 secret redaction
+- [x] T53 secret redaction
   - 目标：日志、事件 payload、错误输出统一脱敏。
   - 文件：`src/safepatch/security/redaction.py`、`tests/security/test_redaction.py`。
-  - 失败测试：类似 `sk-...` 的值写入事件前被替换。
-  - 验证：`pytest tests/security/test_redaction.py`。
+  - 失败测试：类似 `sk-...` 的值写入事件前被替换；dict/list 递归脱敏。红灯为缺少 `safepatch.security.redaction`。
+  - 验证：`pytest tests/security/test_redaction.py` 通过，`3 passed`；全量 `.\scripts\test.ps1` 通过，`71 passed, 1 skipped`。
   - 依赖：T50。
+  - commit：待提交。
 
 ## 6. API / WebUI / Demo
 

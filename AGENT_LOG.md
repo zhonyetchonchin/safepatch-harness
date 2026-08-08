@@ -119,3 +119,39 @@
 - 实现 2：`AgentLoop` 接受 `RunBudget` 并在 provider 调用前检查 step budget，预算耗尽时结束为 `budget_exhausted`。
 - 绿灯：`tests/core/test_budget.py` 通过，`4 passed`；`tests/core/test_loop.py` 通过，`3 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`29 passed`。
+
+## 2026-08-08 T30 / 安全文件读取、列表、搜索
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/tools/test_files.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\tools\test_files.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.tools'`。
+- 实现：新增 `src/safepatch/tools/__init__.py`、`src/safepatch/tools/files.py`，实现 workspace containment、敏感文件拒绝、默认 denied 目录过滤、文件列表和文本搜索。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_files.py` 通过，`6 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`35 passed`。
+- 人工 / 主开发决策：`ToolResult.observation` 当前会 trim 尾部换行；T30 将文本反馈视为 observation，不把它作为逐字节文件内容 API。
+
+## 2026-08-08 T31 / 原子 patch 工具
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/tools/test_patch.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\tools\test_patch.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.tools.patch'`。
+- 实现：新增 `src/safepatch/tools/patch.py`，实现统一 diff 解析、路径 containment、hunk 上下文校验和全部校验后写入。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_patch.py` 通过，`3 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`38 passed`。
+- 人工 / 主开发决策：T31 只支持现有文本文件修改；新增文件、删除文件和复杂 diff 格式留到后续扩展。
+
+## 2026-08-08 T32 / 受控检查命令
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/tools/test_checks.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\tools\test_checks.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.tools.checks'`。
+- 实现：新增 `src/safepatch/tools/checks.py`，只运行 allowlist 中的 argv 命令，使用 `shell=False`，捕获 stdout/stderr/returncode，超时返回 `ResultCategory.TIMEOUT`。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\tools\test_checks.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`42 passed`。
+- 人工 / 主开发决策：命令 allowlist 属于配置层输入；本工具不接受任意 shell 字符串。
+
+## 2026-08-08 T33 / 反馈构建器
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/core/test_feedback.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_feedback.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.core.feedback'`。
+- 实现：新增 `src/safepatch/core/feedback.py`，将 `ToolResult` 转成 `tool` 角色消息；`AgentLoop.run()` 支持 `prior_feedback` 注入 provider context。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_feedback.py` 通过，`2 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`44 passed`。
+- 人工 / 主开发决策：反馈内容保持紧凑文本，结构化细节来自 `ToolResult.metadata`，后续可在 UI/API 层展示原始事件。

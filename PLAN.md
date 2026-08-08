@@ -87,33 +87,37 @@
 
 ## 3. 工具与反馈
 
-- [ ] T30 安全文件读取 / 列表 / 搜索
+- [x] T30 安全文件读取 / 列表 / 搜索
   - 目标：实现 workspace 内文件工具。
   - 文件：`src/safepatch/tools/files.py`、`tests/tools/test_files.py`。
-  - 失败测试：`../`、绝对路径逃逸、敏感路径读取被拒绝。
-  - 验证：`pytest tests/tools/test_files.py`。
+  - 失败测试：`../`、绝对路径逃逸、敏感路径读取被拒绝；列表忽略 denied 目录；搜索返回匹配行。红灯为缺少 `safepatch.tools`。
+  - 验证：`pytest tests/tools/test_files.py` 通过，`6 passed`；全量 `.\scripts\test.ps1` 通过，`35 passed`。
   - 依赖：T20。
+  - commit：待提交。
 
-- [ ] T31 原子 patch 工具
+- [x] T31 原子 patch 工具
   - 目标：实现上下文校验 patch；失败时不写入。
   - 文件：`src/safepatch/tools/patch.py`、`tests/tools/test_patch.py`。
-  - 失败测试：上下文不匹配时文件内容不变。
-  - 验证：`pytest tests/tools/test_patch.py`。
+  - 失败测试：上下文不匹配时文件内容不变；路径逃逸拒绝；成功 patch 写入。红灯为缺少 `safepatch.tools.patch`。
+  - 验证：`pytest tests/tools/test_patch.py` 通过，`3 passed`；全量 `.\scripts\test.ps1` 通过，`38 passed`。
   - 依赖：T30。
+  - commit：待提交。
 
-- [ ] T32 受控检查命令
+- [x] T32 受控检查命令
   - 目标：只运行配置 allowlist 中的检查命令。
   - 文件：`src/safepatch/tools/checks.py`、`tests/tools/test_checks.py`。
-  - 失败测试：非 allowlist 命令不执行；超时返回 timeout。
-  - 验证：`pytest tests/tools/test_checks.py`。
+  - 失败测试：非 allowlist 命令不执行；超时返回 timeout；成功和失败命令捕获输出和退出码。红灯为缺少 `safepatch.tools.checks`。
+  - 验证：`pytest tests/tools/test_checks.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`42 passed`。
   - 依赖：T20。
+  - commit：待提交。
 
-- [ ] T33 反馈构建器
+- [x] T33 反馈构建器
   - 目标：把工具结果、检查失败、策略拒绝转为下一轮上下文。
   - 文件：`src/safepatch/core/feedback.py`、`tests/core/test_feedback.py`。
-  - 失败测试：测试失败摘要必须出现在下一轮 prompt/context。
-  - 验证：`pytest tests/core/test_feedback.py`。
+  - 失败测试：测试失败摘要必须出现在下一轮 prompt/context。红灯为缺少 `safepatch.core.feedback`。
+  - 验证：`pytest tests/core/test_feedback.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`44 passed`。
   - 依赖：T22、T32。
+  - commit：待提交。
 
 ## 4. 治理与 HITL 主贡献
 

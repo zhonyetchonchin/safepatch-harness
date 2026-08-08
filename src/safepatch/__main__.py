@@ -17,7 +17,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--port",
-        default=int(os.environ.get("SAFEPATCH_PORT", "8000")),
+        default=int(os.environ.get("SAFEPATCH_PORT") or os.environ.get("PORT") or "8000"),
         type=int,
         help="bind port",
     )

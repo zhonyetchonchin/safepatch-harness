@@ -96,6 +96,22 @@ Run the demo WebUI:
 docker run --rm -p 8000:8000 safepatch
 ```
 
+## Public deployment
+
+The container runs in demo mode on `0.0.0.0`, so it can be deployed as a
+public WebUI. The demo mode only serves the workbench UI and its local API;
+it never opens arbitrary user repositories or executes unrestricted commands.
+
+Render (free tier) example using `render.yaml` in this repository:
+
+1. Push the repository to GitHub.
+2. Create a Render web service with runtime `Docker`.
+3. Set env var `SAFEPATCH_DATA_DIR=/data/safepatch` and health check path
+   `/health`.
+
+The server honors the platform-provided `PORT` environment variable as a
+fallback (Render / Fly.io / Railway all inject `PORT`).
+
 The repository includes `.gitlab-ci.yml` with a `unit-test` job that installs
 `.[dev]` and runs:
 

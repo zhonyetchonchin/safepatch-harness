@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: safepatch-harness
+    runtime: docker
+    plan: free
+    repo: https://github.com/YOUR_USERNAME/safepatch-harness
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: SAFEPATCH_DATA_DIR
+        value: /data/safepatch

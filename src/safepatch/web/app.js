@@ -70,12 +70,8 @@ async function createRun(task) {
 }
 
 async function cancelSelectedRun() {
-  if (!state.selectedRunId) {
-    return;
-  }
-  const response = await fetch(`/runs/${state.selectedRunId}/cancel`, {
-    method: "POST",
-  });
+  if (!state.selectedRunId) return;
+  const response = await fetch(`/runs/${state.selectedRunId}/cancel`, { method: "POST" });
   await parseJsonResponse(response);
   await loadRuns();
   await loadEvents();
@@ -94,21 +90,15 @@ async function loadEvents() {
 
 async function approveAction() {
   const actionId = nodes.approvalActionId.value.trim();
-  if (!actionId) {
-    return;
-  }
-  const response = await fetch(`/approvals/${actionId}/approve`, {
-    method: "POST",
-  });
+  if (!actionId) return;
+  const response = await fetch(`/approvals/${actionId}/approve`, { method: "POST" });
   const payload = await parseJsonResponse(response);
   nodes.approvalResult.textContent = pretty(payload);
 }
 
 async function rejectAction() {
   const actionId = nodes.approvalActionId.value.trim();
-  if (!actionId) {
-    return;
-  }
+  if (!actionId) return;
   const reason = nodes.rejectionReason.value.trim() || "Rejected from WebUI";
   const response = await fetch(`/approvals/${actionId}/reject`, {
     method: "POST",
@@ -150,9 +140,30 @@ async function deleteCredential() {
   nodes.credentialStatus.textContent = pretty(payload);
 }
 
+function statusBadgeClass(status) {
+  const map = {
+    running: "badge-running",
+    completed: "badge-completed",
+    failed: "badge-failed",
+    paused_for_approval: "badge-paused",
+    canceled: "badge-failed",
+    budget_exhausted: "badge-failed",
+  };
+  return map[status] || "";
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function renderRuns() {
   if (state.runs.length === 0) {
-    nodes.runList.innerHTML = '<li class="empty">No runs yet.</li>';
+    nodes.runList.innerHTML = '<li class="empty">No runs yet. Create one above.</li>';
     return;
   }
   nodes.runList.innerHTML = state.runs
@@ -165,7 +176,7 @@ function renderRuns() {
             data-run-id="${run.run_id}"
           >
             <span>${escapeHtml(run.task)}</span>
-            <small>${run.status}</small>
+            <small><span class="badge ${statusBadgeClass(run.status)}">${escapeHtml(run.status)}</span></small>
           </button>
         </li>
       `,
@@ -174,7 +185,7 @@ function renderRuns() {
 }
 
 function renderEvents() {
-  const selectedRun = state.runs.find((run) => run.run_id === state.selectedRunId);
+  const selectedRun = state.runs.find((r) => r.run_id === state.selectedRunId);
   nodes.selectedRunLabel.textContent = selectedRun
     ? `${selectedRun.status} · ${selectedRun.run_id}`
     : "No run selected";
@@ -201,28 +212,19 @@ function renderEvents() {
       .join("");
   }
 
-  const checkEvents = state.events.filter((event) =>
-    ["tool_finished", "feedback_built", "run_finished"].includes(event.type),
+  const checkEvents = state.events.filter((e) =>
+    ["tool_finished", "feedback_built", "run_finished"].includes(e.type),
   );
   nodes.checkResults.textContent =
     checkEvents.length === 0 ? "No check results yet." : pretty(checkEvents);
 
-  const patchEvent = state.events.find((event) => {
-    const payload = JSON.stringify(event.payload || {});
-    return payload.includes("--- a/") || payload.includes("diff --git");
+  const patchEvent = state.events.find((e) => {
+    const p = JSON.stringify(e.payload || {});
+    return p.includes("--- a/") || p.includes("diff --git");
   });
   nodes.diffView.textContent = patchEvent
     ? pretty(patchEvent.payload)
     : "No patch captured yet.";
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
 }
 
 nodes.runForm.addEventListener("submit", async (event) => {
@@ -233,9 +235,7 @@ nodes.runForm.addEventListener("submit", async (event) => {
 
 nodes.runList.addEventListener("click", async (event) => {
   const card = event.target.closest("[data-run-id]");
-  if (!card) {
-    return;
-  }
+  if (!card) return;
   state.selectedRunId = card.dataset.runId;
   renderRuns();
   await loadEvents();
@@ -244,24 +244,16 @@ nodes.runList.addEventListener("click", async (event) => {
 nodes.refreshRuns.addEventListener("click", loadRuns);
 nodes.cancelRun.addEventListener("click", cancelSelectedRun);
 nodes.approveAction.addEventListener("click", () => {
-  approveAction().catch((error) => {
-    nodes.approvalResult.textContent = error.message;
-  });
+  approveAction().catch((e) => { nodes.approvalResult.textContent = e.message; });
 });
 nodes.rejectAction.addEventListener("click", () => {
-  rejectAction().catch((error) => {
-    nodes.approvalResult.textContent = error.message;
-  });
+  rejectAction().catch((e) => { nodes.approvalResult.textContent = e.message; });
 });
 nodes.credentialForm.addEventListener("submit", (event) => {
-  setCredential(event).catch((error) => {
-    nodes.credentialStatus.textContent = error.message;
-  });
+  setCredential(event).catch((e) => { nodes.credentialStatus.textContent = e.message; });
 });
 nodes.deleteCredential.addEventListener("click", () => {
-  deleteCredential().catch((error) => {
-    nodes.credentialStatus.textContent = error.message;
-  });
+  deleteCredential().catch((e) => { nodes.credentialStatus.textContent = e.message; });
 });
 
 void loadHealth();

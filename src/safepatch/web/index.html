@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>SafePatch Harness Workbench</title>
+    <title>SafePatch Harness</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
@@ -12,115 +12,119 @@
         <p class="eyebrow">Local coding agent harness</p>
         <h1>SafePatch Harness</h1>
       </div>
-      <p id="status" class="status-pill">Checking API...</p>
+      <p id="status" class="status-pill">Checking API…</p>
     </header>
 
     <main class="layout">
-      <aside class="panel run-panel" aria-label="Runs">
+      <aside class="panel run-panel">
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Runs</p>
             <h2>Queue</h2>
           </div>
-          <button id="refresh-runs" type="button">Refresh</button>
+          <button id="refresh-runs" type="button" class="secondary small">Refresh</button>
         </div>
 
         <form id="run-form" class="stack">
-          <label for="task-input">Task</label>
-          <textarea
-            id="task-input"
-            name="task"
-            rows="4"
-            placeholder="Describe the local coding task..."
-            required
-          ></textarea>
+          <div>
+            <label for="task-input">Task</label>
+            <textarea
+              id="task-input"
+              name="task"
+              rows="3"
+              placeholder="Describe the local coding task…"
+              required
+            ></textarea>
+          </div>
           <div class="button-row">
-            <button type="submit">Create run</button>
-            <button id="cancel-run" type="button" class="secondary">
-              Cancel selected
-            </button>
+            <button type="submit" class="primary">Create run</button>
+            <button id="cancel-run" type="button" class="secondary">Cancel</button>
           </div>
         </form>
 
         <ul id="run-list" class="run-list" aria-live="polite"></ul>
       </aside>
 
-      <section class="panel timeline-panel" aria-label="Timeline">
+      <section class="panel timeline-panel">
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Timeline</p>
             <h2>Run events</h2>
           </div>
-          <span id="selected-run-label" class="muted">No run selected</span>
+          <span id="selected-run-label" class="selected-run-label">No run selected</span>
         </div>
         <ol id="timeline" class="timeline" aria-live="polite"></ol>
       </section>
 
       <aside class="side-stack">
-        <section class="panel" aria-label="Approvals">
+        <section class="panel">
           <p class="eyebrow">HITL</p>
-          <h2>Approval panel</h2>
-          <form id="approval-form" class="stack">
-            <label for="approval-action-id">Action ID</label>
-            <input
-              id="approval-action-id"
-              name="actionId"
-              placeholder="step-0:apply_patch"
-              required
-            />
-            <label for="rejection-reason">Rejection reason</label>
-            <input
-              id="rejection-reason"
-              name="reason"
-              placeholder="Explain why this action is unsafe"
-            />
+          <h2>Approval</h2>
+          <form id="approval-form" class="stack" style="margin-top:10px">
+            <div>
+              <label for="approval-action-id">Action ID</label>
+              <input
+                id="approval-action-id"
+                name="actionId"
+                placeholder="step-0:apply_patch"
+                required
+              />
+            </div>
+            <div>
+              <label for="rejection-reason">Rejection reason</label>
+              <input
+                id="rejection-reason"
+                name="reason"
+                placeholder="Explain why this action is unsafe"
+              />
+            </div>
             <div class="button-row">
-              <button id="approve-action" type="button">Approve</button>
-              <button id="reject-action" type="button" class="secondary">
-                Reject
-              </button>
+              <button id="approve-action" type="button" class="primary">Approve</button>
+              <button id="reject-action" type="button" class="secondary">Reject</button>
             </div>
           </form>
           <pre id="approval-result" class="result-box">No approval selected.</pre>
         </section>
 
-        <section class="panel" aria-label="Credentials">
+        <section class="panel">
           <p class="eyebrow">Credentials</p>
           <h2>OpenAI key</h2>
-          <form id="credential-form" class="stack">
-            <label for="api-key">API key</label>
-            <input
-              id="api-key"
-              name="apiKey"
-              type="password"
-              autocomplete="off"
-              placeholder="sk-..."
-            />
-            <label for="vault-password">Vault password</label>
-            <input
-              id="vault-password"
-              name="password"
-              type="password"
-              autocomplete="off"
-              placeholder="Local master password"
-            />
+          <form id="credential-form" class="stack" style="margin-top:10px">
+            <div>
+              <label for="api-key">API key</label>
+              <input
+                id="api-key"
+                name="apiKey"
+                type="password"
+                autocomplete="off"
+                placeholder="sk-…"
+              />
+            </div>
+            <div>
+              <label for="vault-password">Vault password</label>
+              <input
+                id="vault-password"
+                name="password"
+                type="password"
+                autocomplete="off"
+                placeholder="Local master password"
+              />
+            </div>
             <div class="button-row">
-              <button type="submit">Set / update</button>
-              <button id="delete-credential" type="button" class="secondary">
-                Clear
-              </button>
+              <button type="submit" class="primary">Save</button>
+              <button id="delete-credential" type="button" class="secondary">Clear</button>
             </div>
           </form>
           <pre id="credential-status" class="result-box">Credential status unknown.</pre>
         </section>
 
-        <section class="panel" aria-label="Checks">
+        <section class="panel">
           <p class="eyebrow">Checks</p>
-          <h2>Latest results</h2>
+          <h2>Results</h2>
           <pre id="check-results" class="result-box">No check results yet.</pre>
         </section>
 
-        <section class="panel" aria-label="Diff">
+        <section class="panel">
           <p class="eyebrow">Diff</p>
           <h2>Patch preview</h2>
           <pre id="diff-view" class="diff-view">No patch captured yet.</pre>

@@ -121,33 +121,37 @@
 
 ## 4. 治理与 HITL 主贡献
 
-- [ ] T40 Policy engine 基础规则
+- [x] T40 Policy engine 基础规则
   - 目标：实现 allow / requires_approval / deny 三态决策。
   - 文件：`src/safepatch/policy/engine.py`、`tests/policy/test_engine.py`。
-  - 失败测试：危险命令 deny，依赖锁文件修改 requires_approval。
-  - 验证：`pytest tests/policy/test_engine.py`。
+  - 失败测试：危险命令 deny，非 allowlist 检查 deny，allowlist 检查 allow，敏感读取 deny，依赖锁文件修改 requires_approval。红灯为缺少 `safepatch.policy`。
+  - 验证：`pytest tests/policy/test_engine.py` 通过，`5 passed`；全量 `.\scripts\test.ps1` 通过，`49 passed`。
   - 依赖：T20、T30。
+  - commit：待提交。
 
-- [ ] T41 路径和符号链接围栏
+- [x] T41 路径和符号链接围栏
   - 目标：统一 resolve path，拒绝 symlink escape。
   - 文件：`src/safepatch/policy/paths.py`、`tests/policy/test_paths.py`。
-  - 失败测试：仓库内 symlink 指向仓库外时读取被拒绝。
-  - 验证：`pytest tests/policy/test_paths.py`。
+  - 失败测试：普通 workspace 路径允许，`../` 和绝对路径逃逸拒绝，仓库内 symlink 指向仓库外时读取被拒绝。红灯为缺少 `safepatch.policy.paths`。
+  - 验证：`pytest tests/policy/test_paths.py` 通过，`3 passed, 1 skipped`；当前 Windows 环境不能创建 symlink，相关测试跳过；全量 `.\scripts\test.ps1` 通过，`52 passed, 1 skipped`。
   - 依赖：T30。
+  - commit：待提交。
 
-- [ ] T42 审批状态机
+- [x] T42 审批状态机
   - 目标：实现 pending / approved / rejected / expired 和一次性 action 授权。
   - 文件：`src/safepatch/policy/approval.py`、`tests/policy/test_approval.py`。
-  - 失败测试：同一 approval 不能执行两次；reject 反馈进入下一轮。
-  - 验证：`pytest tests/policy/test_approval.py`。
+  - 失败测试：同一 approval 不能执行两次；reject 反馈进入下一轮；expired 不能 approve/consume。红灯为缺少 `safepatch.policy.approval`。
+  - 验证：`pytest tests/policy/test_approval.py` 通过，`4 passed`；全量 `.\scripts\test.ps1` 通过，`56 passed, 1 skipped`。
   - 依赖：T40。
+  - commit：待提交。
 
-- [ ] T43 loop 与 HITL 集成
+- [x] T43 loop 与 HITL 集成
   - 目标：requires_approval 时 run 暂停，approve 后继续执行原 action。
   - 文件：`src/safepatch/core/loop.py`、`tests/core/test_hitl_loop.py`。
-  - 失败测试：暂停状态下不调用下一轮 provider。
-  - 验证：`pytest tests/core/test_hitl_loop.py`。
+  - 失败测试：暂停状态下不执行工具；approve 后只执行原 action 一次。红灯为 `AgentLoop.__init__()` 不接受 `policy_engine`。
+  - 验证：`pytest tests/core/test_hitl_loop.py` 通过，`2 passed`；全量 `.\scripts\test.ps1` 通过，`58 passed, 1 skipped`。
   - 依赖：T22、T42。
+  - commit：待提交。
 
 ## 5. 记忆、配置、凭据
 

@@ -155,3 +155,39 @@
 - 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_feedback.py` 通过，`2 passed`。
 - 回归：`.\scripts\test.ps1` 通过，`44 passed`。
 - 人工 / 主开发决策：反馈内容保持紧凑文本，结构化细节来自 `ToolResult.metadata`，后续可在 UI/API 层展示原始事件。
+
+## 2026-08-08 T40 / Policy engine 基础规则
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/policy/test_engine.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\policy\test_engine.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.policy'`。
+- 实现：新增 `src/safepatch/policy/__init__.py`、`src/safepatch/policy/engine.py`，实现 `PolicyEngine`、`PolicyDecision`、`DecisionStatus`，覆盖危险检查名、非 allowlist 检查、敏感路径和 protected path approval。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_engine.py` 通过，`5 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`49 passed`。
+- 人工 / 主开发决策：当前 action schema 没有任意 shell 命令类型；危险命令先在 `run_check.name` 和后续 allowlist 边界中拦截。
+
+## 2026-08-08 T41 / 路径和符号链接围栏
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/policy/test_paths.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\policy\test_paths.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.policy.paths'`。
+- 实现：新增 `src/safepatch/policy/paths.py`，用 `Path.resolve()` + `relative_to(root)` 统一拒绝路径逃逸和 symlink escape。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_paths.py` 通过，`3 passed, 1 skipped`；当前 Windows 环境无法创建 symlink，symlink escape 测试跳过。
+- 回归：`.\scripts\test.ps1` 通过，`52 passed, 1 skipped`。
+- 人工 / 主开发决策：保留 symlink 测试的 skip 分支，保证无权限 Windows 环境可运行；在支持 symlink 的 CI/Linux 上会执行该测试。
+
+## 2026-08-08 T42 / 审批状态机
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/policy/test_approval.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\policy\test_approval.py`，失败为 `ModuleNotFoundError: No module named 'safepatch.policy.approval'`。
+- 实现：新增 `src/safepatch/policy/approval.py`，实现 `ApprovalManager`、`ApprovalRecord`、`ApprovalStatus`、`ApprovalError`；支持 request / approve / reject / expire / consume。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\policy\test_approval.py` 通过，`4 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`56 passed, 1 skipped`。
+- 人工 / 主开发决策：一次性授权通过 `consume()` 强制执行；拒绝审批返回 `ToolResult(APPROVAL_REJECTED)`，供反馈链路复用。
+
+## 2026-08-08 T43 / loop 与 HITL 集成
+
+- 技能 / 流程：手工执行 TDD；`test-driven-development` skill 当前未暴露。
+- 红灯：新增 `tests/core/test_hitl_loop.py` 后运行 `.\.venv\Scripts\python.exe -m pytest tests\core\test_hitl_loop.py`，失败为 `AgentLoop.__init__() got an unexpected keyword argument 'policy_engine'`。
+- 实现：`AgentLoop` 接受 `PolicyEngine` 和 `ApprovalManager`；`requires_approval` 时创建 pending approval、转换为 `paused_for_approval`、不执行工具；新增 `resume_approved()` 消费一次性授权并执行原 action。
+- 绿灯：`.\.venv\Scripts\python.exe -m pytest tests\core\test_hitl_loop.py` 通过，`2 passed`。
+- 回归：`.\scripts\test.ps1` 通过，`58 passed, 1 skipped`。
+- 人工 / 主开发决策：resume 阶段只执行已保存的原 action，不重新询问 provider，避免审批被复用于不同动作。

@@ -30,3 +30,24 @@ def test_create_get_cancel_run_and_list_events(tmp_path: Path):
         "run_created",
         "state_changed",
     ]
+
+
+def test_run_list_survives_app_recreation(tmp_path: Path):
+    database = tmp_path / "state.sqlite"
+    first_client = TestClient(create_app(store=SQLiteStore(database)))
+    created = first_client.post("/runs", json={"task": "persist me"}).json()
+
+    second_client = TestClient(create_app(store=SQLiteStore(database)))
+
+    listed = second_client.get("/runs")
+    fetched = second_client.get(f"/runs/{created['run_id']}")
+    assert [run["run_id"] for run in listed.json()["runs"]] == [created["run_id"]]
+    assert fetched.json()["task"] == "persist me"
+
+
+def test_run_task_rejects_blank_text(tmp_path: Path):
+    client = TestClient(create_app(store=SQLiteStore(tmp_path / "state.sqlite")))
+
+    response = client.post("/runs", json={"task": "   "})
+
+    assert response.status_code == 422

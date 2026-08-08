@@ -19,3 +19,5 @@ def test_health_endpoint_and_static_webui_shell(tmp_path: Path):
     assert index.status_code == 200
     assert "SafePatch Harness" in index.text
     assert css.status_code == 200
+    assert health.headers["x-content-type-options"] == "nosniff"
+    assert "default-src 'self'" in health.headers["content-security-policy"]

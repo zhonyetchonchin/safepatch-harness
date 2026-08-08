@@ -2,12 +2,19 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from pydantic import Field
+from pydantic import Field, model_validator
 
-from safepatch.core.models import Event, EventType, NonEmptyStr, StrictModel
+from safepatch.core.models import (
+    Event,
+    EventType,
+    NonEmptyStr,
+    RunStatus,
+    StrictModel,
+)
 from safepatch.security.redaction import redact_payload
 
 
@@ -17,6 +24,25 @@ class MemoryRecord(StrictModel):
     kind: NonEmptyStr
     content: NonEmptyStr
     tags: list[NonEmptyStr] = Field(default_factory=list)
+
+
+class RunRecord(StrictModel):
+    run_id: NonEmptyStr
+    task: NonEmptyStr
+    status: RunStatus
+    scenario: NonEmptyStr | None = None
+    pending_action_id: NonEmptyStr | None = None
+    created_at: datetime
+    updated_at: datetime
+
+    @model_validator(mode="after")
+    def _pending_action_matches_status(self) -> RunRecord:
+        if self.status == RunStatus.PAUSED_FOR_APPROVAL:
+            if self.pending_action_id is None:
+                raise ValueError("pending action is required for paused run")
+        elif self.pending_action_id is not None:
+            raise ValueError("pending action is only valid for paused run")
+        return self
 
 
 class SQLiteStore:
@@ -54,6 +80,103 @@ class SQLiteStore:
                 ),
             )
             return event
+
+    def create_run(
+        self,
+        *,
+        run_id: str,
+        task: str,
+        scenario: str | None = None,
+    ) -> RunRecord:
+        now = datetime.now(timezone.utc)
+        record = RunRecord(
+            run_id=run_id,
+            task=task,
+            status=RunStatus.CREATED,
+            scenario=scenario,
+            created_at=now,
+            updated_at=now,
+        )
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO runs(
+                    run_id, task, status, scenario, pending_action_id,
+                    created_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    record.run_id,
+                    record.task,
+                    record.status.value,
+                    record.scenario,
+                    record.pending_action_id,
+                    record.created_at.isoformat(),
+                    record.updated_at.isoformat(),
+                ),
+            )
+        return record
+
+    def get_run(self, run_id: str) -> RunRecord | None:
+        with self._connect() as connection:
+            row = connection.execute(
+                """
+                SELECT run_id, task, status, scenario, pending_action_id,
+                       created_at, updated_at
+                FROM runs
+                WHERE run_id = ?
+                """,
+                (run_id,),
+            ).fetchone()
+        return self._run_from_row(row) if row is not None else None
+
+    def list_runs(self) -> list[RunRecord]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT run_id, task, status, scenario, pending_action_id,
+                       created_at, updated_at
+                FROM runs
+                ORDER BY created_at ASC, run_id ASC
+                """
+            ).fetchall()
+        return [self._run_from_row(row) for row in rows]
+
+    def update_run(
+        self,
+        run_id: str,
+        *,
+        status: RunStatus,
+        pending_action_id: str | None = None,
+    ) -> RunRecord:
+        current = self.get_run(run_id)
+        if current is None:
+            raise KeyError(run_id)
+        record = RunRecord(
+            run_id=current.run_id,
+            task=current.task,
+            status=RunStatus(status),
+            scenario=current.scenario,
+            pending_action_id=pending_action_id,
+            created_at=current.created_at,
+            updated_at=datetime.now(timezone.utc),
+        )
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE runs
+                SET status = ?, pending_action_id = ?, updated_at = ?
+                WHERE run_id = ?
+                """,
+                (
+                    record.status.value,
+                    record.pending_action_id,
+                    record.updated_at.isoformat(),
+                    record.run_id,
+                ),
+            )
+        return record
 
     def list_events(self, run_id: str) -> list[Event]:
         with self._connect() as connection:
@@ -145,6 +268,19 @@ class SQLiteStore:
         with self._connect() as connection:
             connection.execute(
                 """
+                CREATE TABLE IF NOT EXISTS runs (
+                    run_id TEXT PRIMARY KEY,
+                    task TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    scenario TEXT,
+                    pending_action_id TEXT,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+                """
+            )
+            connection.execute(
+                """
                 CREATE TABLE IF NOT EXISTS events (
                     id TEXT PRIMARY KEY,
                     run_id TEXT NOT NULL,
@@ -179,3 +315,14 @@ class SQLiteStore:
             (run_id,),
         ).fetchone()
         return int(row["next_sequence"])
+
+    def _run_from_row(self, row: sqlite3.Row) -> RunRecord:
+        return RunRecord(
+            run_id=row["run_id"],
+            task=row["task"],
+            status=RunStatus(row["status"]),
+            scenario=row["scenario"],
+            pending_action_id=row["pending_action_id"],
+            created_at=row["created_at"],
+            updated_at=row["updated_at"],
+        )

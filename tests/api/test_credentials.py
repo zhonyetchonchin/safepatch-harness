@@ -40,3 +40,15 @@ def test_set_status_update_and_delete_credential_without_echoing_key(tmp_path: P
     assert "sk-test-secret-value" not in response_text
     assert "sk-new-secret-value" not in response_text
     assert "correct horse" not in response_text
+
+
+def test_credential_validation_error_does_not_echo_submitted_secret(tmp_path: Path):
+    secret = "sk-super-secret-validation-value"
+    store = SQLiteStore(tmp_path / "state.sqlite")
+    vault = EncryptedVault(tmp_path / "vault.json")
+    client = TestClient(create_app(store=store, credential_vault=vault))
+
+    response = client.put("/credentials/openai", json={"api_key": secret})
+
+    assert response.status_code == 422
+    assert secret not in response.text

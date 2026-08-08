@@ -29,6 +29,9 @@ def approval_router() -> APIRouter:
         manager = _approval_manager(request)
         try:
             record = manager.approve(action_id)
+            handler = getattr(request.app.state, "approval_handler", None)
+            if handler is not None:
+                handler.approve(action_id)
             return _approval_response(record)
         except ApprovalError as exc:
             _raise_approval_error(exc)
@@ -43,6 +46,9 @@ def approval_router() -> APIRouter:
         try:
             feedback = manager.reject(action_id, reason=body.reason)
             record = manager.get(action_id)
+            handler = getattr(request.app.state, "approval_handler", None)
+            if handler is not None:
+                handler.reject(action_id, feedback)
             response = _approval_response(record)
             response["feedback"] = _feedback_response(feedback)
             return response

@@ -280,6 +280,7 @@ TDD 证据：
 - Docker Desktop daemon 未运行（首次交付检查时 `docker build` 失败）；后续会话启动 Docker Desktop 后补验：`docker build -t safepatch .` 成功，容器内 `/health` 与 `/` 均返回 200，`POST /runs` 创建 run 成功，验证后删除测试容器。
 - 新增 `render.yaml`（Render Docker 部署蓝图）并让服务端兼容平台注入的 `PORT` 环境变量；公网部署仍待用户提供平台账号。
 - 推送至 GitHub `zhonyetchonchin/safepatch-harness`（master）；新增 `.github/workflows/ci.yml`（unit-test + docker-build），最后一次 GitHub Actions 运行结论 success。`.gitlab-ci.yml` 供 NJU GitLab 提交链路使用。
+- 公网部署：Render Blueprint 部署成功，URL `https://safepatch-harness.onrender.com`；线上验证 `/health`、`/`（WebUI）、`POST /runs`、`/credentials/openai/status`（has_key: false，不回显明文）均正常。
 - 当前未 push 到 GitLab 远端，`.gitlab-ci.yml` 只完成本地 contract 测试，未验证远端 pipeline。
 - Windows 环境下 symlink escape 测试因权限 / 平台限制跳过；路径围栏实现使用 `Path.resolve()` + `relative_to(root)`，支持 symlink 的 CI/Linux 环境会执行该测试。
 - `REFLECTION.md` 是占位说明，真实课程反思应由学生本人完成。

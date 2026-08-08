@@ -327,6 +327,8 @@
   - 启动 Docker Desktop，`docker build -t safepatch .` 成功；容器内 `/health`、`/` 均 200，`POST /runs {"task":"fix tests"}` 返回 201 created，验证后删除测试容器。
   - `src/safepatch/__main__.py` 兼容平台注入的 `PORT`；新增 `render.yaml` 部署蓝图；README 增加公网部署章节。commit `3b23189`。
   - 配置 GitHub remote 并推送 `zhonyetchonchin/safepatch-harness`；新增 `.github/workflows/ci.yml`（unit-test + docker-build），最后一次 GitHub Actions 结论 success。commit `fcb40ee`。
+  - 修复 Dockerfile 硬编码 `--port 8000` 覆盖 Render `PORT` 的问题，容器改为监听平台注入端口。commit `0c1d8a7`。
+  - 通过 Render Blueprint（`render.yaml`）完成公网部署：`https://safepatch-harness.onrender.com`。线上验证 `/health`、`/`（WebUI）、`POST /runs`、`/credentials/openai/status`（has_key: false，不回显明文）均正常。
 - 人工 / 主开发决策：公网部署、远端 CI 执行与真实 REFLECTION 需要用户提供平台账号与本人撰写，工具无法代劳。
 - 下一步：用户创建 GitHub / Render 账号并推送仓库，完成公网 URL；推送远端验证 GitLab pipeline；本人完成 REFLECTION。
 

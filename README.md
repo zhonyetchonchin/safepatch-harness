@@ -5,6 +5,9 @@ repair experiments. It combines a strict action schema, deterministic mock LLM
 providers, policy gates, human approval, encrypted credential storage, a small
 FastAPI backend, and a static WebUI workbench.
 
+Live demo WebUI: https://safepatch-harness.onrender.com (Render, free tier,
+demo mode).
+
 The project is designed for AI4SE Project A: it demonstrates how a coding agent
 can inspect files, propose patches, run allowlisted checks, receive feedback,
 and stop before unsafe actions.

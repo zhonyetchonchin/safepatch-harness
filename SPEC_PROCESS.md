@@ -277,7 +277,8 @@ TDD 证据：
 已知限制与偏离：
 
 - Superpowers 当前只暴露 `superpowers:brainstorming`；`writing-plans`、`test-driven-development`、`requesting-code-review` 未暴露。实现阶段按同等流程手工执行并在 `AGENT_LOG.md` 逐项记录红灯、绿灯、回归和人工决策。
-- Docker CLI 存在，但 Docker Desktop daemon 未运行；`docker build -t safepatch .` 失败为无法连接 `dockerDesktopLinuxEngine`，因此未执行 `docker run`。
+- Docker Desktop daemon 未运行（首次交付检查时 `docker build` 失败）；后续会话启动 Docker Desktop 后补验：`docker build -t safepatch .` 成功，容器内 `/health` 与 `/` 均返回 200，`POST /runs` 创建 run 成功，验证后删除测试容器。
+- 新增 `render.yaml`（Render Docker 部署蓝图）并让服务端兼容平台注入的 `PORT` 环境变量；公网部署仍待用户提供平台账号。
 - 当前未 push 到 GitLab 远端，`.gitlab-ci.yml` 只完成本地 contract 测试，未验证远端 pipeline。
 - Windows 环境下 symlink escape 测试因权限 / 平台限制跳过；路径围栏实现使用 `Path.resolve()` + `relative_to(root)`，支持 symlink 的 CI/Linux 环境会执行该测试。
 - `REFLECTION.md` 是占位说明，真实课程反思应由学生本人完成。

@@ -237,7 +237,7 @@
   - 目标：构建可运行 WebUI 的容器，默认 demo mode。
   - 文件：`Dockerfile`、`.dockerignore`、`src/safepatch/__main__.py`、`src/safepatch/runtime.py`、`tests/distribution/test_docker_assets.py`。
   - 失败测试：初始导入 `safepatch.runtime` 失败；实现后 demo app factory 可服务 `/health` 与 `/`，Dockerfile contract 声明 `python -m safepatch --demo`。
-  - 验证：`pytest tests/distribution/test_docker_assets.py` 通过，`2 passed`；`python -m safepatch --help` 可加载 CLI；`pip wheel .` 成功构建 wheel；全量 `pytest -q` 通过，`85 passed, 1 skipped`。当前机器 Docker CLI 存在但 Docker daemon 未运行，`docker build -t safepatch .` 失败为无法连接 `dockerDesktopLinuxEngine`，未执行 `docker run`。
+  - 验证：`pytest tests/distribution/test_docker_assets.py` 通过，`2 passed`；`python -m safepatch --help` 可加载 CLI；`pip wheel .` 成功构建 wheel；全量 `pytest -q` 通过，`85 passed, 1 skipped`。后续会话启动 Docker Desktop 后补验：`docker build -t safepatch .` 成功，容器内 `/health`、`/` 均 200，`POST /runs` 成功；追加 `render.yaml` 并兼容 `PORT` 环境变量。
   - 依赖：T63、T64。
   - commit：`8edbccb`。
 

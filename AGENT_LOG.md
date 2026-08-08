@@ -319,6 +319,16 @@
 - commit：`23749a9` (`docs: add project readme`)。
 - 人工 / 主开发决策：README 明确说明 credential status response does not echo API key/password；Docker 实际 build 仍受本机 daemon 未启动限制。
 
+## 2026-08-08 T73 后 / 交付收尾
+
+- 工具 / 流程：手工清理与验证。
+- 操作：
+  - 提交残留的开发工具文件（`AGENTS.md`、`opencode.json`、`package.json`、`src/agent.ts`），删除对比用 B 类项目文件；修正 `package.json` 无效 test 脚本。commit `2e975f7`。
+  - 启动 Docker Desktop，`docker build -t safepatch .` 成功；容器内 `/health`、`/` 均 200，`POST /runs {"task":"fix tests"}` 返回 201 created，验证后删除测试容器。
+  - `src/safepatch/__main__.py` 兼容平台注入的 `PORT`；新增 `render.yaml` 部署蓝图；README 增加公网部署章节。commit `3b23189`。
+- 人工 / 主开发决策：公网部署、远端 CI 执行与真实 REFLECTION 需要用户提供平台账号与本人撰写，工具无法代劳。
+- 下一步：用户创建 GitHub / Render 账号并推送仓库，完成公网 URL；推送远端验证 GitLab pipeline；本人完成 REFLECTION。
+
 ## 2026-08-08 T73 / 最终交付检查
 
 - 技能 / 流程：最终检查；重新搜索后仍未暴露 `writing-plans`、`test-driven-development`、`requesting-code-review`。T02 按“流程确认完成但有技能暴露限制”关闭，不声称调用了未暴露 skill。

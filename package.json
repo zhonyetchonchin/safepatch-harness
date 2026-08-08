@@ -1,0 +1,10 @@
+{
+  "name": "safepatch-harness",
+  "version": "1.0.0",
+  "description": "SafePatch Harness is a local-first coding-agent harness for controlled software repair experiments. This package only describes the opencode development agent scaffold; the delivered harness is the Python package under src/safepatch.",
+  "private": true,
+  "scripts": {
+    "test": "python -m pytest -q"
+  },
+  "license": "MIT"
+}

@@ -265,6 +265,49 @@
   - 依赖：全部实现 task。
   - commit：`7d3bd0d`。
 
+## 8. 最终验收与产品化收尾
+
+- [~] T80 全链路审计与收尾设计
+  - 目标：对照课程要求、SPEC、代码、GitHub、Docker 与 Render 线上行为，记录真实缺口和取舍。
+  - 文件：`docs/superpowers/specs/2026-08-08-safepatch-finalization-design.md`、`PLAN.md`、`AGENT_LOG.md`。
+  - 失败证据：线上 WebUI 创建 run 后永久停在 `created`，检查/diff/审批面板无法形成演示；基线测试因学生反思替换占位文本后为 `1 failed, 87 passed, 1 skipped`。
+  - 验证：设计覆盖多轮 loop、run 持久化、HITL 续跑、公网凭据隔离、响应式 UI、镜像与部署验收。
+  - 依赖：T73。
+
+- [ ] T81 多轮 loop 与安全边界加固
+  - 目标：工具反馈在同一 run 内驱动下一步动作；预算逐轮检查；provider/tool 异常稳定收口；审批 ID 跨 run 唯一。
+  - 文件：`src/safepatch/core/loop.py`、`src/safepatch/policy/approval.py`、相关测试。
+  - 失败测试：脚本化 MockLLM 先返回失败检查再改变动作并最终 finish；多 run 的同 step/action ID 不冲突；工具与 provider 异常不泄漏或崩溃。
+  - 验证：核心 loop、feedback、HITL、demo 测试通过。
+  - 依赖：T80。
+
+- [ ] T82 Run 持久化与 Web demo 编排
+  - 目标：runs 落 SQLite；四个安全 mock 场景通过真实 loop 执行；approve/reject 更新原 run；公网模式禁用共享 vault。
+  - 文件：`src/safepatch/store/sqlite.py`、`src/safepatch/api/`、`src/safepatch/demo/`、`src/safepatch/runtime.py`、相关测试。
+  - 失败测试：应用重建后仍可 list/get run；反馈恢复场景含 failed check 与后续成功；HITL 场景可批准续跑或拒绝终止；public demo credential 接口返回安全的 503。
+  - 验证：API 和 demo 集成测试通过，事件 payload 已脱敏。
+  - 依赖：T81。
+
+- [ ] T83 WebUI 交互与视觉收尾
+  - 目标：建立可在桌面/移动端使用的 demo 控制台，自动展示 scenario、状态、时间线、审批、检查和 diff。
+  - 文件：`src/safepatch/web/index.html`、`app.js`、`styles.css`、WebUI contract 测试。
+  - 失败测试：缺少 scenario 控件、capability 状态、toast/忙碌状态、审批自动填充与响应式断点契约。
+  - 验证：浏览器完成 safe repair、feedback recovery、policy block、HITL approve/reject；桌面与移动端无横向溢出且控制台无错误。
+  - 依赖：T82。
+
+- [ ] T84 安全、分发与文档收口
+  - 目标：修复 vault 原子写/损坏错误、凭据验证回显、HTTP 安全头；补 Docker Hub 发布和 README 最终使用说明。
+  - 文件：`src/safepatch/security/vault.py`、`src/safepatch/api/app.py`、`Dockerfile`、`render.yaml`、`.github/workflows/ci.yml`、`README.md`、过程文档。
+  - 失败测试：损坏 vault 返回稳定错误；credential 422 不包含提交值；public blueprint 明确 public demo；README 包含线上、Docker Hub、运行与安全配置。
+  - 验证：pytest、pip check、wheel、Docker build/run 均通过。
+  - 依赖：T83。
+
+- [ ] T85 云端最终验收
+  - 目标：提交并推送 GitHub，发布 Docker Hub 镜像，等待 CI 与 Render 部署完成，复测公网 WebUI 全流程。
+  - 文件：`PLAN.md`、`AGENT_LOG.md`、`SPEC_PROCESS.md`（仅记录验收证据）。
+  - 验证：GitHub Actions 最后一次 run 为 success；Docker Hub `latest` 可拉取；Render `/health`、四场景与响应式 WebUI 验收通过；工作树仅保留用户明确要求不提交的本地备份。
+  - 依赖：T84。
+
 ## 并行策略
 
 T20-T23 是核心依赖链，必须先完成。T30-T33 可与 T40-T42 在不同 worktree 中并行，但合并前要通过 loop 集成测试。T50-T53 可在核心 schema 稳定后并行。T60-T63 依赖核心和存储，最后与 T70-T72 收口。

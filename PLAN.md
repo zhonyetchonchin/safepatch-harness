@@ -245,7 +245,7 @@
   - 目标：配置 `.gitlab-ci.yml`，包含名为 `unit-test` 的 job。
   - 文件：`.gitlab-ci.yml`。
   - 失败测试：初始读取 `.gitlab-ci.yml` 失败；实现后 contract 测试断言 `unit-test` 使用 `python:3.12-slim`、stage 为 `test`、script 安装 `.[dev]` 并运行 `python -m pytest -q`。
-  - 验证：`pytest tests/distribution/test_ci.py` 通过，`1 passed`；`pytest tests/distribution -q` 通过，`3 passed`；全量 `pytest -q` 通过，`86 passed, 1 skipped`。当前未 push，无法验证远端 GitLab pipeline。
+  - 验证：`pytest tests/distribution/test_ci.py` 通过，`1 passed`；`pytest tests/distribution -q` 通过，`3 passed`；全量 `pytest -q` 通过，`86 passed, 1 skipped`。推送 GitHub 后新增 `.github/workflows/ci.yml`（unit-test + docker-build），GitHub Actions 最后一次运行结论 success；`.gitlab-ci.yml` 保留供 NJU GitLab 提交链路。
   - 依赖：T10。
   - commit：`831e4e5`。
 

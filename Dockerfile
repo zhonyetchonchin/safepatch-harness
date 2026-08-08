@@ -16,4 +16,4 @@ RUN python -m pip install --no-cache-dir .
 
 EXPOSE 8000
 
-CMD ["python", "-m", "safepatch", "--demo", "--host", "0.0.0.0"]
+CMD ["python", "-m", "safepatch", "--demo", "--public-demo", "--host", "0.0.0.0"]

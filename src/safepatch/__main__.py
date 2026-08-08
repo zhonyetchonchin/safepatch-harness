@@ -26,6 +26,11 @@ def main() -> None:
         default=os.environ.get("SAFEPATCH_DATA_DIR"),
         help="state and vault directory",
     )
+    parser.add_argument(
+        "--public-demo",
+        action="store_true",
+        help="enable public demo mode (disables credential UI)",
+    )
     args = parser.parse_args()
 
     if not args.demo:
@@ -34,7 +39,10 @@ def main() -> None:
     import uvicorn
 
     uvicorn.run(
-        create_demo_app(data_dir=Path(args.data_dir) if args.data_dir else None),
+        create_demo_app(
+            data_dir=Path(args.data_dir) if args.data_dir else None,
+            public_demo=args.public_demo,
+        ),
         host=args.host,
         port=args.port,
     )

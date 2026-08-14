@@ -115,6 +115,11 @@ Render (free tier) example using `render.yaml` in this repository:
 The server honors the platform-provided `PORT` environment variable as a
 fallback (Render / Fly.io / Railway all inject `PORT`).
 
+> Render free tier sleeps after ~15 minutes of inactivity. The first request
+> after sleep needs ~30-60 seconds to cold-start; subsequent requests are
+> fast. If the health check returns 503 on the first hit, wait a minute and
+> retry.
+
 The repository includes `.gitlab-ci.yml` with a `unit-test` job that installs
 `.[dev]` and runs:
 
